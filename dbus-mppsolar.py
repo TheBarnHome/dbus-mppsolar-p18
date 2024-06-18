@@ -623,10 +623,10 @@ class DbusMppSolarService(object):
                 m['/Alarms/Connection'] = 2
             
             # 0=Off;1=Low Power;2=Fault;3=Bulk;4=Absorption;5=Float;6=Storage;7=Equalize;8=Passthru;9=Inverting;10=Power assist;11=Power supply;252=External control
-            invMode = mode.get('working_mode', None)
+            invMode = mode.get('working_mode', m['/State'])
             if invMode == 'Battery mode':
                 m['/State'] = 9 # Inverting
-            elif invMode == 'Line':
+            elif invMode == 'Hybrid mode(Line mode, Grid mode)':
                 if data.get('is_charging_on', 0) == 1:
                     m['/State'] = 3 # Passthru + Charging? = Bulk
                 else:    
@@ -639,26 +639,26 @@ class DbusMppSolarService(object):
 
             # Normal operation, read data
             #v['/Dc/0/Voltage'] = 
-            m['/Dc/0/Voltage'] = data.get('battery_voltage', None)
+            m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
             m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
             #v['/Dc/0/Current'] = -m['/Dc/0/Current']
             #charging_ac_current = data.get('battery_charging_current', 0)
             #charging_ac = data.get('is_charging_on', 0)
 
             #v['/Ac/Out/L1/V'] = 
-            m['/Ac/Out/L1/V'] = data.get('ac_output_voltage', None)
+            m['/Ac/Out/L1/V'] = data.get('ac_output_voltage', m['/Ac/Out/L1/V'])
             #v['/Ac/Out/L1/F'] = 
-            m['/Ac/Out/L1/F'] = data.get('ac_output_frequency', None)
+            m['/Ac/Out/L1/F'] = data.get('ac_output_frequency', m['/Ac/Out/L1/F'])
             #v['/Ac/Out/L1/P'] =1 
-            m['/Ac/Out/L1/P'] = data.get('ac_output_active_power', None)
+            m['/Ac/Out/L1/P'] = data.get('ac_output_active_power', m['/Ac/Out/L1/P'])
             #v['/Ac/Out/L1/S'] = 
-            m['/Ac/Out/L1/S'] = data.get('ac_output_apparent_power', None)
+            m['/Ac/Out/L1/S'] = data.get('ac_output_apparent_power', m['/Ac/Out/L1/S'])
 
             # Charger input, same as AC1 but separate line data
             #v['/Ac/ActiveIn/L1/V'] = 
-            m['/Ac/In/1/L1/V'] = data.get('ac_input_voltage', None)
+            m['/Ac/In/1/L1/V'] = data.get('ac_input_voltage', m['/Ac/In/1/L1/V'])
             #v['/Ac/ActiveIn/L1/F'] = 
-            m['/Ac/In/1/L1/F'] = data.get('ac_input_frequency', None)
+            m['/Ac/In/1/L1/F'] = data.get('ac_input_frequency', m['/Ac/In/1/L1/F'])
 
             # It does not give us power of AC in, we need to compute it from the current state + Output power + Charging on + Current
            # if m['/State'] == 0:
@@ -669,8 +669,8 @@ class DbusMppSolarService(object):
             #v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
 
             # Solar charger
-            m['/Pv/0/V'] = data.get('pv1_input_voltage', None)
-            m['/Pv/0/P'] = data.get('pv1_input_power', None)
+            m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
+            m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
             m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
             
             # m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
@@ -696,7 +696,7 @@ class DbusMppSolarService(object):
             # m['/Alarms/LineFail'] = getWarning('line_fail_warning')
 
             # # Misc
-            m['/Temperature'] = data.get('inverter_heat_sink_temperature', None)
+            m['/Temperature'] = data.get('inverter_heat_sink_temperature', m['/Temperature'])
 
             # # Execute updates of previously updated values
             self._updateInternal()
