@@ -105,7 +105,7 @@ class DbusMppSolarService(object):
                 self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI17')
             except:
                 try:
-                self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI18')
+                    self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI18')
                 except:
                     logging.error("Protocol detection error, will probably fail now in the next steps")
                     self._invProtocol = "QPI"
