@@ -622,15 +622,15 @@ class DbusMppSolarService(object):
                 m['/Alarms/Connection'] = 2
             
             # 0=Off;1=Low Power;2=Fault;3=Bulk;4=Absorption;5=Float;6=Storage;7=Equalize;8=Passthru;9=Inverting;10=Power assist;11=Power supply;252=External control
-            invMode = mode.get('device_mode', None)
-            if invMode == 'Battery':
+            invMode = mode.get('working_mode', None)
+            if invMode == 'Battery mode':
                 m['/State'] = 9 # Inverting
             elif invMode == 'Line':
                 if data.get('is_charging_on', 0) == 1:
                     m['/State'] = 3 # Passthru + Charging? = Bulk
                 else:    
                     m['/State'] = 8 # Passthru
-            elif invMode == 'Standby':
+            elif invMode == 'Standby mode':
                 m['/State'] = data.get('is_charging_on', 0) * 6 # Standby = 0 -> OFF, Stanby + Charging = 6 -> "Storage" Storing power
             else:
                 m['/State'] = 0 # OFF
@@ -652,7 +652,7 @@ class DbusMppSolarService(object):
             #v['/Ac/Out/L1/P'] =1 
             m['/Ac/Out/L1/P'] = data.get('ac_output_active_power', None)
             #v['/Ac/Out/L1/S'] = 
-            m['/Ac/Out/L1/S'] = data.get('ac_output_aparent_power', None)
+            m['/Ac/Out/L1/S'] = data.get('ac_output_apparent_power', None)
 
             # For my installation specific case: 
             # - When the load is off the output is unkonwn, the AC1/OUT are connected directly, and inverter is bypassed
@@ -674,8 +674,8 @@ class DbusMppSolarService(object):
             #v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
 
             # Solar charger
-            m['/Pv/0/V'] = data.get('pv_input_voltage', None)
-            m['/Pv/0/P'] = data.get('pv_input_power', None)
+            m['/Pv/0/V'] = data.get('pv1_input_voltage', None)
+            m['/Pv/0/P'] = data.get('pv1_input_power', None)
             m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
             
             m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
