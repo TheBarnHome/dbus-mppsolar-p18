@@ -20,7 +20,7 @@ import datetime
 import dbus
 import dbus.service
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARING)
 
 # our own packages
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'velib_python'))
@@ -100,12 +100,15 @@ class DbusMppSolarService(object):
         # Try to get the protocol version of the inverter
         try:
             self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI18')
+            logging.warning(f"Protocol set to PI18.")
         except:
             try:
                 self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI17')
+                logging.warning(f"Protocol set to PI17.")
             except:
                 try:
                     self._invProtocol = runInverterCommands(['QPI'])[0].get('protocol_id', 'PI30')
+                    logging.warning(f"Protocol set to PI30.")
                 except:
                     logging.error("Protocol detection error, will probably fail now in the next steps")
                     self._invProtocol = "QPI"
@@ -117,6 +120,7 @@ class DbusMppSolarService(object):
             except:
                 logging.warning(f"Protocol PI30 is failing, switching to PI30MAX")
                 self._invProtocol = 'PI30MAX'
+                logging.warning(f"Protocol set to PI30MAX.")
 
         # Get inverter data based on protocol
         if self._invProtocol == 'PI17' or self._invProtocol == 'PI18':
@@ -212,7 +216,7 @@ class DbusMppSolarService(object):
         self._dbusmulti.add_path('/Alarms/Connection', 0)
            
         logging.info(f"Paths for 'multi' created.")
-        
+
         # Create paths for 'vebus'
         # self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
         # self._dbusvebus.add_path('/Ac/ActiveIn/L1/I', 0)
