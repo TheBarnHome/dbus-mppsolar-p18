@@ -20,7 +20,7 @@ import datetime
 import dbus
 import dbus.service
 
-logging.basicConfig(level=logging.WARING)
+logging.basicConfig(level=logging.WARNING)
 
 # our own packages
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'velib_python'))
