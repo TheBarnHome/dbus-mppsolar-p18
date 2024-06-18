@@ -643,7 +643,6 @@ class DbusMppSolarService(object):
             m['/Dc/0/Current'] = -data.get('battery_discharge_current', 0)
             #v['/Dc/0/Current'] = -m['/Dc/0/Current']
             charging_ac_current = data.get('battery_charging_current', 0)
-            load_on =  data.get('is_load_on', 0)
             charging_ac = data.get('is_charging_on', 0)
 
             #v['/Ac/Out/L1/V'] = 
@@ -655,11 +654,6 @@ class DbusMppSolarService(object):
             #v['/Ac/Out/L1/S'] = 
             m['/Ac/Out/L1/S'] = data.get('ac_output_apparent_power', None)
 
-            # For my installation specific case: 
-            # - When the load is off the output is unkonwn, the AC1/OUT are connected directly, and inverter is bypassed
-            if INVERTER_OFF_ASSUME_BYPASS and load_on == 0:
-                m['/Ac/Out/L1/P'] = m['/Ac/Out/L1/S'] = None
-
             # Charger input, same as AC1 but separate line data
             #v['/Ac/ActiveIn/L1/V'] = 
             m['/Ac/In/1/L1/V'] = data.get('ac_input_voltage', None)
@@ -670,7 +664,7 @@ class DbusMppSolarService(object):
             if m['/State'] == 0:
                 m['/Ac/In/1/L1/P'] = None # Unkown if inverter is off
             else:
-                m['/Ac/In/1/L1/P'] = 0 if invMode == 'Battery' else m['/Ac/Out/L1/P']
+                m['/Ac/In/1/L1/P'] = 0 if invMode == 'Battery Mode' else m['/Ac/Out/L1/P']
                 m['/Ac/In/1/L1/P'] = (m['/Ac/In/1/L1/P'] or 0) + charging_ac * charging_ac_current * m['/Dc/0/Voltage']
             #v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
 
@@ -702,10 +696,10 @@ class DbusMppSolarService(object):
             # m['/Alarms/LineFail'] = getWarning('line_fail_warning')
 
             # # Misc
-            # m['/Temperature'] = data.get('inverter_heat_sink_temperature', None)
+            m['/Temperature'] = data.get('inverter_heat_sink_temperature', None)
 
             # # Execute updates of previously updated values
-            # self._updateInternal()
+            self._updateInternal()
 
         return True
 
