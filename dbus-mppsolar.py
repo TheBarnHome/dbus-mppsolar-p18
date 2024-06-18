@@ -661,11 +661,11 @@ class DbusMppSolarService(object):
             m['/Ac/In/1/L1/F'] = data.get('ac_input_frequency', None)
 
             # It does not give us power of AC in, we need to compute it from the current state + Output power + Charging on + Current
-            if m['/State'] == 0:
-                m['/Ac/In/1/L1/P'] = None # Unkown if inverter is off
-            else:
-                m['/Ac/In/1/L1/P'] = 0 if invMode == 'Battery Mode' else m['/Ac/Out/L1/P']
-                m['/Ac/In/1/L1/P'] = (m['/Ac/In/1/L1/P'] or 0) + charging_ac * charging_ac_current * m['/Dc/0/Voltage']
+           # if m['/State'] == 0:
+           #     m['/Ac/In/1/L1/P'] = None # Unkown if inverter is off
+           # else:
+           #     m['/Ac/In/1/L1/P'] = 0 if m['/State'] = 9 else m['/Ac/Out/L1/P']
+            #    m['/Ac/In/1/L1/P'] = (m['/Ac/In/1/L1/P'] or 0) + charging_ac * charging_ac_current * m['/Dc/0/Voltage']
             #v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
 
             # Solar charger
