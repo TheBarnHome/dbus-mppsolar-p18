@@ -291,7 +291,7 @@ class DbusMppSolarService(object):
         except:
             logging.exception('Error in update loop', exc_info=True)
             # mainloop.quit()
-            return False
+            return True
 
     def _change(self, path, value):
         global mainloop
