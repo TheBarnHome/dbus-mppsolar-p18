@@ -1,4 +1,5 @@
 #!/bin/sh
 echo "*** starting dbus-mppsolar ***"
 exec 2>&1
-exec /data/etc/dbus-mppsolar/start-dbus-mppsolar.sh TTY
+exec /data/etc/dbus-mppsolar/start-dbus-mppsolar.sh hidraw0
+exec /data/etc/dbus-mppsolar/start-dbus-mppsolar.sh hidraw1
