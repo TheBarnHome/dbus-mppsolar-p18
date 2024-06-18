@@ -640,10 +640,10 @@ class DbusMppSolarService(object):
             # Normal operation, read data
             #v['/Dc/0/Voltage'] = 
             m['/Dc/0/Voltage'] = data.get('battery_voltage', None)
-            m['/Dc/0/Current'] = -data.get('battery_discharge_current', 0)
+            m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
             #v['/Dc/0/Current'] = -m['/Dc/0/Current']
-            charging_ac_current = data.get('battery_charging_current', 0)
-            charging_ac = data.get('is_charging_on', 0)
+            #charging_ac_current = data.get('battery_charging_current', 0)
+            #charging_ac = data.get('is_charging_on', 0)
 
             #v['/Ac/Out/L1/V'] = 
             m['/Ac/Out/L1/V'] = data.get('ac_output_voltage', None)
@@ -673,7 +673,7 @@ class DbusMppSolarService(object):
             m['/Pv/0/P'] = data.get('pv1_input_power', None)
             m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
             
-            m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
+            # m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
             # Compute the currents as well?
             # m['/Ac/Out/L1/I'] = m['/Ac/Out/L1/P'] / m['/Ac/Out/L1/V']
             # m['/Ac/In/1/L1/I'] = m['/Ac/In/1/L1/P'] / m['/Ac/In/1/L1/V']
