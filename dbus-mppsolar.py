@@ -705,6 +705,8 @@ class DbusMppSolarService(object):
 
                 # # Execute updates of previously updated values
                 self._updateInternal()
+        except:
+            return False
         return True
 
     def _change_PI18(self, path, value):
