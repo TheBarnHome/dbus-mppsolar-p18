@@ -675,7 +675,7 @@ class DbusMppSolarService(object):
 
                 # Solar charger
                 m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
-                m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
+                m['/Ac/In/1/L1/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
                 m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
                 
                 # m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
