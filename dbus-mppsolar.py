@@ -20,7 +20,7 @@ import datetime
 import dbus
 import dbus.service
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 
 # our own packages
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'velib_python'))
@@ -211,6 +211,8 @@ class DbusMppSolarService(object):
         self._dbusmulti.add_path('/Alarms/GridLost', 0)
         self._dbusmulti.add_path('/Alarms/Connection', 0)
            
+        logging.info(f"Paths for 'multi' created.")
+        
         # Create paths for 'vebus'
         # self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
         # self._dbusvebus.add_path('/Ac/ActiveIn/L1/I', 0)
