@@ -50,7 +50,10 @@ def runInverterCommands(commands, protocol="PI30"):
         parsed = [json.loads(o) for o in output]
     else:
         dev = mppsolar.helpers.get_device_class("mppsolar")(port=args.serial, protocol=protocol, baud=args.baudrate)
-        results = [dev.run_command(command=c) for c in commands]
+        try:
+            results = [dev.run_command(command=c) for c in commands]
+        except:
+            results = ""
         parsed = [mppsolar.outputs.to_json(r, False, None, None) for r in results]           
     return parsed
 
