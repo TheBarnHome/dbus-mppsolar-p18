@@ -99,13 +99,13 @@ class DbusMppSolarService(object):
 
         # Try to get the protocol version of the inverter
         try:
-            self._invProtocol = runInverterCommands(['QPI'])[0].get('protocol_id', 'PI30')
+            self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI18')
         except:
             try:
                 self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI17')
             except:
                 try:
-                    self._invProtocol = runInverterCommands(['PI'])[0].get('protocol_id', 'PI18')
+                    self._invProtocol = runInverterCommands(['QPI'])[0].get('protocol_id', 'PI30')
                 except:
                     logging.error("Protocol detection error, will probably fail now in the next steps")
                     self._invProtocol = "QPI"
