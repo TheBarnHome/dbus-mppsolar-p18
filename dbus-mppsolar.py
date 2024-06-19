@@ -54,28 +54,46 @@ def runInverterCommands(commands, protocol="PI30"):
         parsed = [mppsolar.outputs.to_json(r, False, None, None) for r in results]           
     return parsed
 
-def setOutputSource(source):
+def setOutputSource(source, protocol="PI30"):
     #POP<NN>: Setting device output source priority
     #    NN = 00 for utility first, 01 for solar first, 02 for SBU priority
+    #   For PI18, Output POP0 [0: Solar-Utility-Batter],  POP1 [1: Solar-Battery-Utility]
     return runInverterCommands(['POP{:02d}'.format(source)])
 
-def setChargerPriority(priority):
+def setChargerPriority(priority, protocol="PI30"):
     #PCP<NN>: Setting device charger priority
     #  For KS: 00 for utility first, 01 for solar first, 02 for solar and utility, 03 for only solar charging
     #  For MKS: 00 for utility first, 01 for solar first, 03 for only solar charging
+    #   For PI18, 0: Solar first, 1: Solar and Utility, 2: Only solar
     return runInverterCommands(['PCP{:02d}'.format(priority)])
 
-def setMaxChargingCurrent(current):
+def setMaxChargingVoltage(voltage, protocol="PI30"):
+    #MCHGV : Setting bulk and float voltage
+    # For PI18 : MCHGV552,540 will set Bulk - CV voltage [480~584] in 0.1V xxx, Float voltage [480~584] in 0.1V
+    if protocol == "PI18":
+        return runInverterCommands(['MCHGV{:d},{:d}'.format(int(voltage*10), int(voltage*10))], protocol)
+    else:
+        return True
+
+def setMaxChargingCurrent(current, protocol="PI30"):
     #MNCHGC<mnnn><cr>: Setting max charging current (More than 100A)
     #  Setting value can be gain by QMCHGCR command.
     #  nnn is max charging current, m is parallel number.
-    return runInverterCommands(['MNCHGC0{:04d}'.format(current)])
+    roundedCurrent = round(current / 10) * 10
+    if protocol == "PI18":
+        return runInverterCommands(['MCHGC0{:04d}'.format(roundedCurrent)], protocol)
+    else:
+        return runInverterCommands(['MNCHGC0{:04d}'.format(roundedCurrent)], protocol)
 
-def setMaxUtilityChargingCurrent(current):
+def setMaxUtilityChargingCurrent(current, protocol="PI30"):
     #MUCHGC<nnn><cr>: Setting utility max charging current
     #  Setting value can be gain by QMCHGCR command.
     #  nnn is max charging current, m is parallel number.
-    return runInverterCommands(['MUCHGC{:03d}'.format(current)])
+    roundedCurrent = max(2, round(current / 10) * 10)
+    if protocol == "PI18":
+        return runInverterCommands(['MUCHGC0{:04d}'.format(roundedCurrent)], protocol)
+    else:
+        return runInverterCommands(['MUCHGC{:03d}'.format(current)])
 
 def isNaN(num):
     return num != num
@@ -267,6 +285,7 @@ class DbusMppSolarService(object):
         service.add_path('/Settings/Reset', None, writeable=True, onchangecallback=self._change)
         service.add_path('/Settings/Charger', None, writeable=True, onchangecallback=self._change)
         service.add_path('/Settings/Output', None, writeable=True, onchangecallback=self._change)
+        service.add_path('/Settings/SystemSetup', None, writeable=True, onchangecallback=self._change)
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
@@ -705,25 +724,34 @@ class DbusMppSolarService(object):
         return True
 
     def _change_PI18(self, path, value):
-        # if path == '/Ac/In/1/CurrentLimit' or path == '/Ac/In/2/CurrentLimit':
-        #     logging.warning("setting max utility charging current to = {} ({})".format(value, setMaxUtilityChargingCurrent(value)))
-        #     self._queued_updates.append((path, value))
+        # Current settings
+        if path == '/Ac/In/1/CurrentLimit' or path == '/Ac/In/2/CurrentLimit':
+            logging.warning("setting max utility charging current to = {} ({})".format(value, setMaxUtilityChargingCurrent(value)))
+            self._queued_updates.append((path, value))
+        
+        if path == '/MaxChargeCurrent':
+            logging.warning("setting max current charging to = {}".format(value))
 
-        # if path == '/Mode': # 1=Charger Only;2=Inverter Only;3=On;4=Off(?)
-        #     if value == 1:
-        #         #logging.warning("setting mode to 'Charger Only'(Charger=Util & Output=Util->solar) ({},{})".format(setChargerPriority(0), setOutputSource(0)))
-        #         logging.warning("setting mode to 'Charger Only'(Charger=Util) ({})".format(setChargerPriority(0)))
-        #     elif value == 2:
-        #         logging.warning("setting mode to 'Inverter Only'(Charger=Solar & Output=SBU) ({},{})".format(setChargerPriority(3), setOutputSource(2)))
-        #     elif value == 3:
-        #         logging.warning("setting mode to 'ON=Charge+Invert'(Charger=Util & Output=SBU) ({},{})".format(setChargerPriority(0), setOutputSource(2)))
-        #     elif value == 4:
-        #         #logging.warning("setting mode to 'OFF'(Charger=Solar & Output=Util->solar) ({},{})".format(setChargerPriority(3), setOutputSource(0)))
-        #         logging.warning("setting mode to 'OFF'(Charger=Solar) ({})".format(setChargerPriority(3)))
-        #     else:
-        #         logging.warning("setting mode not understood ({})".format(value))
-        #     self._queued_updates.append((path, value))
-        # # Debug nodes
+        # Voltage settings
+        if path == '/MaxChargeVoltage':
+            logging.warning("setting max voltage charging to = {}".format(value))
+
+        # Mode settings
+        if path == '/Mode': # 1=Charger Only;2=Inverter Only;3=On;4=Off(?)
+            if value == 1:
+                #logging.warning("setting mode to 'Charger Only'(Charger=Util & Output=Util->solar) ({},{})".format(setChargerPriority(0), setOutputSource(0)))
+                logging.warning("setting mode to 'Charger Only'(Charger=Util) ({})".format(setChargerPriority(1), setOutputSource(1)))
+            elif value == 2:
+                logging.warning("setting mode to 'Inverter Only'(Charger=Solar & Output=SBU) ({},{})".format(setChargerPriority(0), setOutputSource(2)))
+            elif value == 3:
+                logging.warning("setting mode to 'ON=Charge+Invert'(Charger=Util & Output=SBU) ({},{})".format(setChargerPriority(1), setOutputSource(2)))
+            elif value == 4:
+                #logging.warning("setting mode to 'OFF'(Charger=Solar & Output=Util->solar) ({},{})".format(setChargerPriority(3), setOutputSource(0)))
+                logging.warning("setting mode to 'OFF'(Charger=Solar) ({})".format(setChargerPriority(3), setOutputSource(2)))
+            else:
+                logging.warning("setting mode not understood ({})".format(value))
+            self._queued_updates.append((path, value))
+        # Debug nodes
         # if path == '/Settings/Charger':
         #     if value == 0:
         #         logging.warning("setting charger priority to utility first ({})".format(setChargerPriority(value)))
@@ -762,7 +790,7 @@ def main():
     global mainloop
     mainloop = GLib.MainLoop()
     mainloop.run()
-
+    
 
 if __name__ == "__main__":
     main()
