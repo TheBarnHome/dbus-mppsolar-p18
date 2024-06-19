@@ -109,13 +109,13 @@ class SessionBus(dbus.bus.BusConnection):
 def dbusconnection():
     return SessionBus() if 'DBUS_SESSION_BUS_ADDRESS' in os.environ else SystemBus()
 
-# Our MPP solar service that conencts to 2 dbus services (multi & vebus)
+# Our MPP solar service that connects to 2 dbus services (multi & vebus)
 class DbusMppSolarService(object):
-    def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface'):
+    def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface', json_file_path='config.json'):
         self._tty = tty
         self._queued_updates = []
+        
         # Get the name from config file if available
-        json_file_path = 'config.json'
         if os.path.exists(json_file_path):
             with open(json_file_path, 'r') as json_file:
                 data = json.load(json_file)
