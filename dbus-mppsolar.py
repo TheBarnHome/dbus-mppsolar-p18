@@ -296,6 +296,7 @@ class DbusMppSolarService(object):
         service.add_path('/Settings/Charger', None, writeable=True, onchangecallback=self._change)
         service.add_path('/Settings/Output', None, writeable=True, onchangecallback=self._change)
         service.add_path('/Settings/SystemSetup', None, writeable=True, onchangecallback=self._change)
+        service.add_path('/Link', None, writeable=True, onchangecallback=self._change)
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
