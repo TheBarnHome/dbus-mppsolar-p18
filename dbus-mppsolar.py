@@ -111,7 +111,7 @@ def dbusconnection():
 
 # Our MPP solar service that connects to 2 dbus services (multi & vebus)
 class DbusMppSolarService(object):
-    def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface', json_file_path='config.json'):
+    def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface', json_file_path='/data/etc/dbus-mppsolar/config.json'):
         self._tty = tty
         self._queued_updates = []
         
