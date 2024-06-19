@@ -275,7 +275,7 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/State', 0)
         #self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
-        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 2000, self._update)
+        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
     def setupDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
@@ -644,7 +644,7 @@ class DbusMppSolarService(object):
        # raw = runInverterCommands(['GS','MOD','FWS'])
         try:
             raw = runInverterCommands(['GS','MOD'], "PI18")
-            logging.warning(raw)
+            # logging.warning(raw)
         except:
             logging.warning("Error in update PI18 loop.")
             self._updateInternal()
