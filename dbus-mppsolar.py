@@ -114,6 +114,15 @@ class DbusMppSolarService(object):
     def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface'):
         self._tty = tty
         self._queued_updates = []
+        # Get the name from config file if available
+        json_file_path = 'config.json'
+        if os.path.exists(json_file_path):
+            with open(json_file_path, 'r') as json_file:
+                data = json.load(json_file)
+            if tty in data:
+                productname_value = data[tty].get('productname', None)
+                if productname_value is not None:
+                    productname = productname_value
 
         # Try to get the protocol version of the inverter
         try:
