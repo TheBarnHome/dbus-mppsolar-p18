@@ -122,7 +122,7 @@ class DbusMppSolarService(object):
             if tty in data:
                 productname_value = data[tty].get('productname', None)
                 if productname_value is not None:
-                    productname = productname_value
+                    # productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
 
         # Try to get the protocol version of the inverter
