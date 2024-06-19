@@ -641,8 +641,13 @@ class DbusMppSolarService(object):
 
     def _update_PI18(self):
        # raw = runInverterCommands(['GS','MOD','FWS'])
-        raw = runInverterCommands(['GS','MOD'], "PI18")
-        logging.warning(raw)
+        try:
+            raw = runInverterCommands(['GS','MOD'], "PI18")
+            logging.warning(raw)
+        except:
+            self._updateInternal()
+            return True
+        
     # data, mode, warnings = raw
         data, mode = raw
         with self._dbusmulti as m:#, self._dbusvebus as v:
