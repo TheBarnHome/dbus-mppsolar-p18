@@ -171,7 +171,7 @@ class DbusMppSolarService(object):
 
         # Set up default paths
         self.setupDefaultPaths(self._dbusmulti, connection, deviceinstance, f"Inverter {productname}")
-        self.setupDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
+        # self.setupDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
 
         # Create paths for 'multi'
         self._dbusmulti.add_path('/Ac/In/1/L1/V', 0)
@@ -264,13 +264,13 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
 
         # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
-        self._dbusvebus.add_path('/Dc/0/Voltage', 0)
-        self._dbusvebus.add_path('/Dc/0/Current', 0)
-        self._dbusvebus.add_path('/Pv/0/V',0)
-        self._dbusvebus.add_path('/Pv/V',0)
-        self._dbusvebus.add_path('/Pv/0/P',0)
-        self._dbusvebus.add_path('/Yield/Power',0)
-        self._dbusvebus.add_path('/MppOperationMode',0)
+        # self._dbusvebus.add_path('/Dc/0/Voltage', 0)
+        # self._dbusvebus.add_path('/Dc/0/Current', 0)
+        # self._dbusvebus.add_path('/Pv/0/V',0)
+        # self._dbusvebus.add_path('/Pv/V',0)
+        # self._dbusvebus.add_path('/Pv/0/P',0)
+        # self._dbusvebus.add_path('/Yield/Power',0)
+        # self._dbusvebus.add_path('/MppOperationMode',0)
 
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
@@ -683,25 +683,25 @@ class DbusMppSolarService(object):
             # Normal operation, read data
             m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
             m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
-            v['/Dc/0/Voltage'] = m['/Dc/0/Voltage']
-            v['/Dc/0/Current'] = -m['/Dc/0/Current']
+            # v['/Dc/0/Voltage'] = m['/Dc/0/Voltage']
+            # v['/Dc/0/Current'] = -m['/Dc/0/Current']
             #charging_ac_current = data.get('battery_charging_current', 0)
             #charging_ac = data.get('is_charging_on', 0)
 
             m['/Ac/Out/L1/V'] = data.get('ac_output_voltage', m['/Ac/Out/L1/V'])
-            # v['/Ac/Out/L1/V'] = m['/Ac/Out/L1/V']
+            # # v['/Ac/Out/L1/V'] = m['/Ac/Out/L1/V']
             m['/Ac/Out/L1/F'] = data.get('ac_output_frequency', m['/Ac/Out/L1/F'])
-            # v['/Ac/Out/L1/F'] = m['/Ac/Out/L1/F'] 
+            # # v['/Ac/Out/L1/F'] = m['/Ac/Out/L1/F'] 
             m['/Ac/Out/L1/P'] = data.get('ac_output_active_power', m['/Ac/Out/L1/P'])
-            # v['/Ac/Out/L1/P'] = m['/Ac/Out/L1/P'] 
+            # # v['/Ac/Out/L1/P'] = m['/Ac/Out/L1/P'] 
             m['/Ac/Out/L1/S'] = data.get('ac_output_apparent_power', m['/Ac/Out/L1/S'])
-            # v['/Ac/Out/L1/S'] = m['/Ac/Out/L1/S']
+            # # v['/Ac/Out/L1/S'] = m['/Ac/Out/L1/S']
 
             # Charger input, same as AC1 but separate line data
             m['/Ac/In/1/L1/V'] = data.get('ac_input_voltage', m['/Ac/In/1/L1/V'])
-            # v['/Ac/ActiveIn/L1/V'] = m['/Ac/ActiveIn/L1/V']
+            # # v['/Ac/ActiveIn/L1/V'] = m['/Ac/ActiveIn/L1/V']
             m['/Ac/In/1/L1/F'] = data.get('ac_input_frequency', m['/Ac/In/1/L1/F'])
-            # v['/Ac/ActiveIn/L1/F'] = m['/Ac/ActiveIn/L1/F']
+            # # v['/Ac/ActiveIn/L1/F'] = m['/Ac/ActiveIn/L1/F']
 
             # It does not give us power of AC in, we need to compute it from the current state + Output power + Charging on + Current
         # if m['/State'] == 0:
@@ -709,7 +709,7 @@ class DbusMppSolarService(object):
         # else:
         #     m['/Ac/In/1/L1/P'] = 0 if m['/State'] = 9 else m['/Ac/Out/L1/P']
             #    m['/Ac/In/1/L1/P'] = (m['/Ac/In/1/L1/P'] or 0) + charging_ac * charging_ac_current * m['/Dc/0/Voltage']
-            #v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
+            ## v['/Ac/ActiveIn/L1/P'] = m['/Ac/In/1/L1/P']
 
             # Solar charger
             m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
@@ -718,11 +718,11 @@ class DbusMppSolarService(object):
             m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
             m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
 
-            v['/Pv/0/V'] = m['/Pv/0/V']
-            v['/Pv/V'] = m['/Pv/V']
-            v['/Pv/0/P'] = m['/Pv/0/P']
-            v['/Yield/Power'] = m['/Yield/Power']
-            v['/MppOperationMode'] = m['/MppOperationMode']
+            # v['/Pv/0/V'] = m['/Pv/0/V']
+            # v['/Pv/V'] = m['/Pv/V']
+            # v['/Pv/0/P'] = m['/Pv/0/P']
+            # v['/Yield/Power'] = m['/Yield/Power']
+            # v['/MppOperationMode'] = m['/MppOperationMode']
             
             # m['/Dc/0/Current'] = m['/Dc/0/Current'] + charging_ac * charging_ac_current - self._dcLast / (m['/Dc/0/Voltage'] or 27)
             # Compute the currents as well?
