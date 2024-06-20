@@ -264,6 +264,11 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
         self._dbusvebus.add_path('/Dc/0/Voltage', 0)
         self._dbusvebus.add_path('/Dc/0/Current', 0)
+        self._dbusvebus.add_path('/Pv/0/V',0)
+        self._dbusvebus.add_path('/Pv/V',0)
+        self._dbusvebus.add_path('/Pv/0/P',0)
+        self._dbusvebus.add_path('/Yield/Power',0)
+        self._dbusvebus.add_path('/MppOperationMode',0)
 
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
