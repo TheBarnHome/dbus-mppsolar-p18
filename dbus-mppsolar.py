@@ -242,8 +242,8 @@ class DbusMppSolarService(object):
         self._dbusmulti.add_path('/Alarms/LineFail', 0)
         self._dbusmulti.add_path('/Alarms/GridLost', 0)
         self._dbusmulti.add_path('/Alarms/Connection', 0)
-        # self._dbusmulti.add_path('/Settings/SystemSetup/MaxChargeCurrent', 0)
-        # self._dbusmulti.add_path('/Settings/SystemSetup/MaxChargeVoltage', 0)
+        self._dbusmulti.add_path('/Settings/SystemSetup/MaxChargeCurrent', 0)
+        self._dbusmulti.add_path('/Settings/SystemSetup/MaxChargeVoltage', 0)
            
         logging.info(f"Paths for 'multi' created.")
 
