@@ -167,11 +167,11 @@ class DbusMppSolarService(object):
         
         # Create the services
         self._dbusmulti = VeDbusService(f'com.victronenergy.multi.mppsolar.{tty}', dbusconnection())
-        #self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
+        self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
 
         # Set up default paths
         self.setupDefaultPaths(self._dbusmulti, connection, deviceinstance, f"Inverter {productname}")
-        #self.setupDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
+        self.setupDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
 
         # Create paths for 'multi'
         self._dbusmulti.add_path('/Ac/In/1/L1/V', 0)
@@ -246,34 +246,34 @@ class DbusMppSolarService(object):
         logging.info(f"Paths for 'multi' created.")
 
         # Create paths for 'vebus'
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/I', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/V', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/P', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/S', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/P', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/S', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/ActiveInput', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/L1/I', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/L1/V', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/L1/P', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/L1/S', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/P', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/S', 0)
+        self._dbusvebus.add_path('/Ac/ActiveIn/ActiveInput', 0)
 
-        # self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/S', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/S', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
 
-        # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
-        # self._dbusvebus.add_path('/Dc/0/Voltage', 0)
-        # self._dbusvebus.add_path('/Dc/0/Current', 0)
+        self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
+        self._dbusvebus.add_path('/Dc/0/Voltage', 0)
+        self._dbusvebus.add_path('/Dc/0/Current', 0)
 
-        # self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
-        # self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
-        # self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 1)
-        # self._dbusvebus.add_path('/Ac/In/1/Type', 1) #0=Unused;1=Grid;2=Genset;3=Shore
+        self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
+        self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
+        self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 1)
+        self._dbusvebus.add_path('/Ac/In/1/Type', 1) #0=Unused;1=Grid;2=Genset;3=Shore
         
-        # self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
-        # self._dbusvebus.add_path('/ModeIsAdjustable', 1)
-        # self._dbusvebus.add_path('/State', 0)
-        #self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
+        self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
+        self._dbusvebus.add_path('/ModeIsAdjustable', 1)
+        self._dbusvebus.add_path('/State', 0)
+        self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
         GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
