@@ -679,7 +679,6 @@ class DbusMppSolarService(object):
                 m['/State'] = data.get('is_charging_on', 0) * 6 # Standby = 0 -> OFF, Stanby + Charging = 6 -> "Storage" Storing power
             else:
                 m['/State'] = 0 # OFF
-            v['/State'] = m['/State']
 
             # Normal operation, read data
             m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
