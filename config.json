@@ -1,8 +1,8 @@
 {
-  "hidraw0": {
+  "hidraw1": {
     "productname": "Master"
   },
-  "hidraw1": {
+  "hidraw0": {
     "productname": "Slave_1"
   }
 }
