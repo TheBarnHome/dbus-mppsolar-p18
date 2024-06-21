@@ -314,7 +314,7 @@ class DbusMppSolarService(object):
             raw = runInverterCommands(['ET', 'GS','MOD', 'PIRI'], "PI18")
             # logging.warning(raw)
         except:
-            logging.warning("Error in update PI18 loop.")
+            logging.warning("Error in update PI18 loop.", exc_info=True)
             self._updateInternal()
             return True
         
