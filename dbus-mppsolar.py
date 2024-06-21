@@ -165,6 +165,8 @@ class DbusMppSolarService(object):
         self._dbusmppt.add_path('/Pv/0/P', 0)
         self._dbusmppt.add_path('/Yield/Power', 0)
         self._dbusmppt.add_path('/Temperature', 123)
+        self._dbusmppt.add_path('/Dc/0/Voltage', 0)
+
         # external control
         self._dbusmppt.add_path('/Link/NetworkMode', 0)
         self._dbusmppt.add_path('/Link/BatteryCurrent', 0)
@@ -330,7 +332,7 @@ class DbusMppSolarService(object):
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
             m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
-            
+
             m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
 
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
