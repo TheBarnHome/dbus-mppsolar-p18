@@ -232,7 +232,7 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/State', 0)
         # self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
-        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
+        GLib.timeout_add(30000 if USE_SYSTEM_MPPSOLAR else 30000, self._update)
     
     def setupInverterDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
