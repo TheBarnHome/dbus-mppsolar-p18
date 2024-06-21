@@ -118,11 +118,11 @@ class DbusMppSolarService(object):
         # Get the name from config file if available
         if os.path.exists(json_file_path):
             with open(json_file_path, 'r') as json_file:
-                data = json.load(json_file)
-            if tty in data:
-                productname_value = data[tty].get('productname', None)
+                config = json.load(json_file)
+            if tty in config:
+                productname_value = config[self._tty].get('productname', None)
                 if productname_value is not None:
-                    # productname = productname_value
+                    productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
 
         # Try to get the protocol version of the inverter
