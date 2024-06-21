@@ -166,6 +166,7 @@ class DbusMppSolarService(object):
         self._dbusmppt.add_path('/Yield/Power', 0)
         self._dbusmppt.add_path('/Temperature', 123)
         self._dbusmppt.add_path('/Dc/0/Voltage', 0)
+        self._dbusmppt.add_path('/Dc/0/Current', 0)
 
         # external control
         self._dbusmppt.add_path('/Link/NetworkMode', 0)
