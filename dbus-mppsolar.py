@@ -159,38 +159,38 @@ class DbusMppSolarService(object):
 
         # Create paths for charger
         # general data
-        self._dbusmqtt.add_path('/NrOfTrackers', 1)
-        self._dbusmqtt.add_path('/Pv/V', 0)
-        self._dbusmqtt.add_path('/Pv/0/V', 0)
-        self._dbusmqtt.add_path('/Pv/0/P', 0)
-        self._dbusmqtt.add_path('/Yield/Power', 0)
-        self._dbusmqtt.add_path('/Temperature', 123)
+        self._dbusmppt.add_path('/NrOfTrackers', 1)
+        self._dbusmppt.add_path('/Pv/V', 0)
+        self._dbusmppt.add_path('/Pv/0/V', 0)
+        self._dbusmppt.add_path('/Pv/0/P', 0)
+        self._dbusmppt.add_path('/Yield/Power', 0)
+        self._dbusmppt.add_path('/Temperature', 123)
         # external control
-        self._dbusmqtt.add_path('/Link/NetworkMode', 0)
-        self._dbusmqtt.add_path('/Link/BatteryCurrent', 0)
-        self._dbusmqtt.add_path('/Link/ChargeCurrent', 0)
-        self._dbusmqtt.add_path('/Link/ChargeVoltage', 0)
-        self._dbusmqtt.add_path('/Link/NetworkStatus', 0)
-        self._dbusmqtt.add_path('/Link/TemperatureSense', 0)
-        self._dbusmqtt.add_path('/Link/TemperatureSenseActive', 0)
-        self._dbusmqtt.add_path('/Link/VoltageSense', 0)
-        self._dbusmqtt.add_path('/Link/VoltageSenseActive', 0)
+        self._dbusmppt.add_path('/Link/NetworkMode', 0)
+        self._dbusmppt.add_path('/Link/BatteryCurrent', 0)
+        self._dbusmppt.add_path('/Link/ChargeCurrent', 0)
+        self._dbusmppt.add_path('/Link/ChargeVoltage', 0)
+        self._dbusmppt.add_path('/Link/NetworkStatus', 0)
+        self._dbusmppt.add_path('/Link/TemperatureSense', 0)
+        self._dbusmppt.add_path('/Link/TemperatureSenseActive', 0)
+        self._dbusmppt.add_path('/Link/VoltageSense', 0)
+        self._dbusmppt.add_path('/Link/VoltageSenseActive', 0)
         # settings
-        self._dbusmqtt.add_path('/Settings/BmsPresent', None)
-        self._dbusmqtt.add_path('/Settings/ChargeCurrentLimit', 0)
+        self._dbusmppt.add_path('/Settings/BmsPresent', None)
+        self._dbusmppt.add_path('/Settings/ChargeCurrentLimit', 0)
         # other paths
-        self._dbusmqtt.add_path('/Yield/User', 0)
-        self._dbusmqtt.add_path('/Yield/System', 0)
-        self._dbusmqtt.add_path('/ErrorCode', 0)
-        self._dbusmqtt.add_path('/State', 0)
-        self._dbusmqtt.add_path('/Mode', 0)
-        self._dbusmqtt.add_path('/MppOperationMode', 0)
-        self._dbusmqtt.add_path('/Relay/0/State', None)
+        self._dbusmppt.add_path('/Yield/User', 0)
+        self._dbusmppt.add_path('/Yield/System', 0)
+        self._dbusmppt.add_path('/ErrorCode', 0)
+        self._dbusmppt.add_path('/State', 0)
+        self._dbusmppt.add_path('/Mode', 0)
+        self._dbusmppt.add_path('/MppOperationMode', 0)
+        self._dbusmppt.add_path('/Relay/0/State', None)
         # history
-        # self._dbusmqtt.add_path('/History/Overall/DaysAvailable', 0)
-        # self._dbusmqtt.add_path('/History/Overall/MaxPvVoltage', 0)
-        # self._dbusmqtt.add_path('/History/Overall/MaxBatteryVoltage', 0)
-        # self._dbusmqtt.add_path('/History/Overall/MinBatteryVoltage', 0)
+        # self._dbusmppt.add_path('/History/Overall/DaysAvailable', 0)
+        # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
+        # self._dbusmppt.add_path('/History/Overall/MaxBatteryVoltage', 0)
+        # self._dbusmppt.add_path('/History/Overall/MinBatteryVoltage', 0)
 
         logging.info(f"Paths for 'solarcharger' created.")
 
@@ -317,7 +317,7 @@ class DbusMppSolarService(object):
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
-        with self._dbusinverter as i, self._dbusvebus as v, self._dbusmqtt as m:           
+        with self._dbusinverter as i, self._dbusvebus as v, self._dbusmppt as m:           
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
             if invMode == 'Battery mode':
