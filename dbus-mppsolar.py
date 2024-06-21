@@ -317,7 +317,7 @@ class DbusMppSolarService(object):
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
-        with self._dbusinverter as i, self._dbusvebus as v, self._dbusmppt as m:           
+        with self._dbusinverter as i, self._dbusmppt as m:           # self._dbusvebus as v,
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
             if invMode == 'Battery mode':
@@ -330,6 +330,7 @@ class DbusMppSolarService(object):
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
             m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
+            
             m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
 
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
