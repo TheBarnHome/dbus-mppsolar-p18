@@ -340,7 +340,7 @@ class DbusMppSolarService(object):
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
             if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
-            i['/Ac/Out/L1/I'] = output_current
+                i['/Ac/Out/L1/I'] = output_current
 
             # Solar charger
             m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
