@@ -311,7 +311,7 @@ class DbusMppSolarService(object):
     def _update_PI18(self):
        # raw = runInverterCommands(['GS','MOD','FWS'])
         try:
-            raw = runInverterCommands(['ET', 'GS','MOD', 'PIRI'], "PI18")
+            raw = runInverterCommands(['ET', 'GS','MOD'], "PI18")
             # logging.warning(raw)
         except:
             logging.warning("Error in update PI18 loop.", exc_info=True)
@@ -319,7 +319,7 @@ class DbusMppSolarService(object):
             return True
         
     # data, mode, warnings = raw
-        generated, data, mode, rated = raw
+        generated, data, mode = raw
         with self._dbusinverter as i, self._dbusmppt as m:           # self._dbusvebus as v,
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
@@ -350,8 +350,8 @@ class DbusMppSolarService(object):
             m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User'])
             m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System'])
             m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
-            m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
-            m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
+            #m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
+            #m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
             
             # # Misc
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
