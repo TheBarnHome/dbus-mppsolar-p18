@@ -137,7 +137,6 @@ class DbusMppSolarService(object):
         logging.warning(f"Connected to inverter on {tty} ({self._invProtocol}), setting up dbus with /DeviceInstance = {deviceinstance}")
         
         # Create the services
-        self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
         # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
@@ -147,6 +146,8 @@ class DbusMppSolarService(object):
         # self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
         self.setupChargerDefaultPaths(self._dbusmppt, connection, deviceinstance, f"Charger {productname}")
 
+        self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
+        
         # Create paths for 'multi'
         self._dbusinverter.add_path('/Dc/0/Voltage', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/V', 0)
