@@ -334,7 +334,7 @@ class DbusMppSolarService(object):
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
             m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
 
-            m['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
+            # i['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
 
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
