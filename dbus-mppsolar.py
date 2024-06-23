@@ -265,8 +265,7 @@ class DbusMppSolarService(object):
 
         # Create the mandatory objects
         service.add_path('/DeviceInstance', deviceinstance)
-        if self._invData:
-            service.add_path('/ProductId', self._invData[0].get('serial_number', 0))
+        service.add_path('/ProductId', None)
         service.add_path('/ProductName', productname)
         service.add_path('/FirmwareVersion', "v1.50")
         service.add_path('/HardwareVersion', 0)
