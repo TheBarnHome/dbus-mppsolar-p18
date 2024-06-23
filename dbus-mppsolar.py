@@ -361,7 +361,7 @@ class DbusMppSolarService(object):
             
             # # Misc
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
-            m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/Temperature'])
+            m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
 
             # # Execute updates of previously updated values
             self._updateInternal()
