@@ -244,12 +244,10 @@ class DbusMppSolarService(object):
 
         # Create the mandatory objects
         service.add_path('/DeviceInstance', deviceinstance)
-        if self._invData:
-            service.add_path('/ProductId', self._invData[0].get('serial_number', 0))
+        service.add_path('/ProductId', None)
         service.add_path('/ProductName', productname)
-        if self._invData:
-            service.add_path('/FirmwareVersion', self._invData[1].get('main_cpu_firmware_version', 0))
-        service.add_path('/HardwareVersion', 0)
+        service.add_path('/FirmwareVersion', None)
+        service.add_path('/HardwareVersion', None)
         service.add_path('/Connected', 1)
 
         # Create the paths for modifying the system manually
@@ -267,8 +265,8 @@ class DbusMppSolarService(object):
         service.add_path('/DeviceInstance', deviceinstance)
         service.add_path('/ProductId', None)
         service.add_path('/ProductName', productname)
-        service.add_path('/FirmwareVersion', "v1.50")
-        service.add_path('/HardwareVersion', 0)
+        service.add_path('/FirmwareVersion', None)
+        service.add_path('/HardwareVersion', None)
         service.add_path('/Connected', 1)
 
         # Create the paths for modifying the system manually
