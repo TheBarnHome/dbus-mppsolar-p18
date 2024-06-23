@@ -146,7 +146,7 @@ class DbusMppSolarService(object):
         # self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
         self.setupChargerDefaultPaths(self._dbusmppt, connection, deviceinstance, f"Charger {productname}")
 
-#        self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
+        self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
 
         # Create paths for 'multi'
         self._dbusinverter.add_path('/Dc/0/Voltage', 0)
@@ -279,10 +279,10 @@ class DbusMppSolarService(object):
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
-        with self._dbusinverter as m:# self._dbusvebus as v:
+        with self._dbusinverter as i, self._dbusmppt as m:# self._dbusvebus as v:
             for path, value, in self._queued_updates:
+                i[path] = value
                 m[path] = value
-                # v[path] = value
             self._queued_updates = []
 
     def _update(self):
