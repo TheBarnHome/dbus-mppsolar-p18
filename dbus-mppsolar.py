@@ -148,7 +148,7 @@ class DbusMppSolarService(object):
 
         # self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
 
-        # Create paths for 'multi'
+        # Create paths for inverter
         self._dbusinverter.add_path('/Dc/0/Voltage', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/V', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/I', 0)
@@ -157,7 +157,7 @@ class DbusMppSolarService(object):
         self._dbusinverter.add_path('/State', 0)                    #<- 0=Off; 1=Low Power; 2=Fault; 9=Inverting
         self._dbusinverter.add_path('/Temperature', 123)
            
-        logging.info(f"Paths for 'multi' created.")
+        logging.info(f"Paths for Inverter created.")
 
         # Create paths for charger
         # general data
@@ -166,7 +166,7 @@ class DbusMppSolarService(object):
         self._dbusmppt.add_path('/Pv/0/V', 0)
         self._dbusmppt.add_path('/Pv/0/P', 0)
         self._dbusmppt.add_path('/Yield/Power', 0)
-        self._dbusmppt.add_path('/Temperature', 123)
+        self._dbusmppt.add_path('/DC/0/Temperature', 123)
         self._dbusmppt.add_path('/Dc/0/Voltage', 0)
         self._dbusmppt.add_path('/Dc/0/Current', 0)
 
@@ -234,7 +234,7 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/State', 0)
         # self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
-        GLib.timeout_add(2000 if USE_SYSTEM_MPPSOLAR else 2000, self._update)
+        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
     def setupInverterDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
