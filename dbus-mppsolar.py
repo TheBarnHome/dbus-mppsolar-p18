@@ -279,6 +279,7 @@ class DbusMppSolarService(object):
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
+        logging.warning("Update internals.")
         with self._dbusinverter as i, self._dbusmppt as m:# self._dbusvebus as v:
             for path, value, in self._queued_updates:
                 i[path] = value
