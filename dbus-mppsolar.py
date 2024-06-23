@@ -234,7 +234,7 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/State', 0)
         # self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
-        GLib.timeout_add(30000 if USE_SYSTEM_MPPSOLAR else 30000, self._update)
+        GLib.timeout_add(2000 if USE_SYSTEM_MPPSOLAR else 2000, self._update)
     
     def setupInverterDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
@@ -279,7 +279,6 @@ class DbusMppSolarService(object):
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
-        logging.warning("Update internals.")
         with self._dbusinverter as i, self._dbusmppt as m:# self._dbusvebus as v:
             for path, value, in self._queued_updates:
                 i[path] = value
