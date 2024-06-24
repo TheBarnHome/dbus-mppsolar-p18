@@ -141,6 +141,8 @@ class DbusMppSolarService(object):
         # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
 
+        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Settings/SystemSetup/MaxChargeVoltage')
+
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
         # self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
@@ -325,6 +327,8 @@ class DbusMppSolarService(object):
             logging.warning("Error in update PI18 loop.", exc_info=True)
             self._updateInternal()
             return True
+        
+        logging.warning("Max Charge Voltage : {}", self._systemMaxCharge.get_value())
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
