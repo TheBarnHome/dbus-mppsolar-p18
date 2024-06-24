@@ -171,7 +171,7 @@ class DbusMppSolarService(object):
         self._dbusmppt.add_path('/Dc/0/Current', 0)
 
         # external control
-        self._dbusmppt.add_path('/Link/NetworkMode', 8) # <- Bitmask
+        self._dbusmppt.add_path('/Link/NetworkMode', 1) # <- Bitmask
                         # 0x1 = External control
                         # 0x4 = External voltage/current control
                         # 0x8 = Controled by BMS (causes Error #67, BMS lost, if external control is interrupted).
