@@ -141,7 +141,7 @@ class DbusMppSolarService(object):
         # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
 
-        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Settings/SystemSetup/MaxChargeVoltage')
+        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.settings', '/Settings/SystemSetup/MaxChargeVoltage')
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
