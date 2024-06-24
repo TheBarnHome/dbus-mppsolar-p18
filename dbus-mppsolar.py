@@ -351,7 +351,7 @@ class DbusMppSolarService(object):
                 i['/Ac/Out/L1/I'] = output_current
 
             # Solar charger
-            if data.get('pv1_input_power', m['/Pv/0/P']) > 0:
+            if data.get('pv1_input_power', 0) > 0:
                 m['/State'] = 3
             else:
                 m['/State'] = 0
