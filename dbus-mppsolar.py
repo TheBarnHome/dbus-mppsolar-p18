@@ -163,8 +163,8 @@ class DbusMppSolarService(object):
         # general data
         self._dbusmppt.add_path('/NrOfTrackers', 1)
         self._dbusmppt.add_path('/Pv/V', 0)
-        self._dbusmppt.add_path('/Pv/0/V', 0)
-        self._dbusmppt.add_path('/Pv/0/P', 0)
+        # self._dbusmppt.add_path('/Pv/0/V', 0)
+        # self._dbusmppt.add_path('/Pv/0/P', 0)
         self._dbusmppt.add_path('/Yield/Power', 0)
         self._dbusmppt.add_path('/DC/0/Temperature', 123)
         self._dbusmppt.add_path('/Dc/0/Voltage', 0)
@@ -178,14 +178,20 @@ class DbusMppSolarService(object):
         self._dbusmppt.add_path('/Link/BatteryCurrent', 0)
         self._dbusmppt.add_path('/Link/ChargeCurrent', 0)
         self._dbusmppt.add_path('/Link/ChargeVoltage', 0)
-        self._dbusmppt.add_path('/Link/NetworkStatus', 0)
+        self._dbusmppt.add_path('/Link/NetworkStatus', 4) # <- Bitmask
+                        # 0x01 = Slave
+                        # 0x02 = Master
+                        # 0x04 = Standalone
+                        # 0x20 = Using I-sense (/Link/BatteryCurrent)
+                        # 0x40 = Using T-sense (/Link/TemperatureSense)
+                        # 0x80 = Using V-sense (/Link/VoltageSense)
         self._dbusmppt.add_path('/Link/TemperatureSense', 0)
         self._dbusmppt.add_path('/Link/TemperatureSenseActive', 0)
         self._dbusmppt.add_path('/Link/VoltageSense', 0)
         self._dbusmppt.add_path('/Link/VoltageSenseActive', 0)
         # settings
         self._dbusmppt.add_path('/Settings/BmsPresent', None)
-        self._dbusmppt.add_path('/Settings/ChargeCurrentLimit', 0)
+        self._dbusmppt.add_path('/Settings/ChargeCurrentLimit', 80)
         # other paths
         self._dbusmppt.add_path('/Yield/User', 0)
         self._dbusmppt.add_path('/Yield/System', 0)
@@ -349,13 +355,13 @@ class DbusMppSolarService(object):
                 m['/State'] = 3
             else:
                 m['/State'] = 0
-            m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
+            # m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
             m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
-            m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
+            # m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
             m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
             m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User']) / 1000
             m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System']) / 1000
-            m['/MppOperationMode'] = 2 if (m['/Pv/0/P'] != None and m['/Pv/0/P'] > 0) else 0
+            m['/MppOperationMode'] = 2 if (data.get('pv1_input_power') != None and data.get('pv1_input_power') > 0) else 0
             m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
             m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
             
