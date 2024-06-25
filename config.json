@@ -1,8 +1,18 @@
 {
   "hidraw1": {
-    "productname": "Master"
+    "productname": "Master",
+    "hasSolarConnected": true,
+    "chargeVoltageControl": "internal",
+    "bulkVoltage": "55.2",
+    "floatVoltage": "53.6",
+    "maxChargeCurrent": 80
   },
   "hidraw0": {
-    "productname": "Slave_1"
+    "productname": "Slave_1",
+    "hasSolarConnected": false,
+    "chargeVoltageControl": "internal",
+    "bulkVoltage": "55.2",
+    "floatVoltage": "53.6",
+    "maxChargeCurrent": 80
   }
 }

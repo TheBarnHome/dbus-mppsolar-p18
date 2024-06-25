@@ -67,24 +67,32 @@ def setChargerPriority(priority, protocol="PI18"):
     #   For PI18, 0: Solar first, 1: Solar and Utility, 2: Only solar
     return runInverterCommands(['PCP{:02d}'.format(priority)])
 
-def setMaxChargingVoltage(voltage, protocol="PI18"):
+def setMaxChargingVoltage(bulk, float, protocol="PI18"):
     #MCHGV : Setting bulk and float voltage
     # For PI18 : MCHGV552,540 will set Bulk - CV voltage [480~584] in 0.1V xxx, Float voltage [480~584] in 0.1V
-    if protocol == "PI18":
-        return runInverterCommands(['MCHGV{:d},{:d}'.format(int(voltage*10), int(voltage*10))], protocol)
-    else:
+    try:
+        if protocol == "PI18":
+            return runInverterCommands(['MCHGV{:d},{:d}'.format(int(bulk*10), int(float*10))], protocol)
+        else:
+            return True
+    except:
+        logging.warning("Fail to set max charging voltage to {:d} and {:d}".format(bulk, float))
         return True
 
 def setMaxChargingCurrent(current, protocol="PI18"):
     #MNCHGC<mnnn><cr>: Setting max charging current (More than 100A)
     #  Setting value can be gain by QMCHGCR command.
     #  nnn is max charging current, m is parallel number.
-    roundedCurrent = round(current / 10) * 10
-    if protocol == "PI18":
-        return runInverterCommands(['MCHGC0{:04d}'.format(roundedCurrent)], protocol)
-    else:
-        return runInverterCommands(['MNCHGC0{:04d}'.format(roundedCurrent)], protocol)
-
+    try:
+        roundedCurrent = min(max (0, round(current / 10) * 10), 80)
+        if protocol == "PI18":
+            return runInverterCommands(['MCHGC0{:04d}'.format(roundedCurrent)], protocol)
+        else:
+            return runInverterCommands(['MNCHGC0{:04d}'.format(roundedCurrent)], protocol)
+    except:
+        logging.warning("Fail to set max charging current to {:d}".format(current))
+        return True
+    
 def setMaxUtilityChargingCurrent(current, protocol="PI18"):
     #MUCHGC<nnn><cr>: Setting utility max charging current
     #  Setting value can be gain by QMCHGCR command.
@@ -121,9 +129,21 @@ class DbusMppSolarService(object):
                 config = json.load(json_file)
             if tty in config:
                 productname_value = config[self._tty].get('productname', None)
+                chargeVoltageControl = config[self._tty].get('chargeVoltageControl', None)
+                hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
                 if productname_value is not None:
                     productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
+                if config[self._tty].get('chargeVoltageControl', None) != "external":
+                    bulkVoltage = config[self._tty].get('bulkVoltage', None)
+                    floatVoltage = config[self._tty].get('floatVoltage', None)
+                    logging.warning("Bulk voltage : {}, Float voltage: {}".format(bulkVoltage, floatVoltage))
+                else:
+                    logging.warning("Charge voltage control set to external.")
+
+        if chargeVoltageControl != "external" & (bulkVoltage == None | floatVoltage == None):
+            logging.warning("Config is wrong, quit.")
+            sys.exit()
 
         self._invProtocol = 'PI18'
         logging.warning(f"Protocol set to PI18.")
@@ -140,7 +160,7 @@ class DbusMppSolarService(object):
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
         # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
-        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.settings', '/Settings/SystemSetup/MaxChargeVoltage')
+        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
@@ -161,53 +181,54 @@ class DbusMppSolarService(object):
         logging.info(f"Paths for Inverter created.")
 
         # Create paths for charger
-        # general data
-        self._dbusmppt.add_path('/NrOfTrackers', 1)
-        self._dbusmppt.add_path('/Pv/V', 0)
-        self._dbusmppt.add_path('/Pv/0/V', 0)
-        self._dbusmppt.add_path('/Pv/0/P', 0)
-        self._dbusmppt.add_path('/Yield/Power', 0)
-        self._dbusmppt.add_path('/DC/0/Temperature', 123)
-        self._dbusmppt.add_path('/Dc/0/Voltage', 0)
-        self._dbusmppt.add_path('/Dc/0/Current', 0)
+        if self.hasSolarConnected:
+            # general data
+            self._dbusmppt.add_path('/NrOfTrackers', 1)
+            self._dbusmppt.add_path('/Pv/V', 0)
+            self._dbusmppt.add_path('/Pv/0/V', 0)
+            self._dbusmppt.add_path('/Pv/0/P', 0)
+            self._dbusmppt.add_path('/Yield/Power', 0)
+            self._dbusmppt.add_path('/DC/0/Temperature', 123)
+            self._dbusmppt.add_path('/Dc/0/Voltage', 0)
+            self._dbusmppt.add_path('/Dc/0/Current', 0)
 
-        # external control
-        self._dbusmppt.add_path('/Link/NetworkMode', 1) # <- Bitmask
-                        # 0x1 = External control
-                        # 0x4 = External voltage/current control
-                        # 0x8 = Controled by BMS (causes Error #67, BMS lost, if external control is interrupted).
-        self._dbusmppt.add_path('/Link/BatteryCurrent', 0)
-        self._dbusmppt.add_path('/Link/ChargeCurrent', 0)
-        self._dbusmppt.add_path('/Link/ChargeVoltage', 0)
-        self._dbusmppt.add_path('/Link/NetworkStatus', 4) # <- Bitmask
-                        # 0x01 = Slave
-                        # 0x02 = Master
-                        # 0x04 = Standalone
-                        # 0x20 = Using I-sense (/Link/BatteryCurrent)
-                        # 0x40 = Using T-sense (/Link/TemperatureSense)
-                        # 0x80 = Using V-sense (/Link/VoltageSense)
-        self._dbusmppt.add_path('/Link/TemperatureSense', 0)
-        self._dbusmppt.add_path('/Link/TemperatureSenseActive', 0)
-        self._dbusmppt.add_path('/Link/VoltageSense', 0)
-        self._dbusmppt.add_path('/Link/VoltageSenseActive', 0)
-        # settings
-        self._dbusmppt.add_path('/Settings/BmsPresent', None)
-        self._dbusmppt.add_path('/Settings/ChargeCurrentLimit', 80)
-        # other paths
-        self._dbusmppt.add_path('/Yield/User', 0)
-        self._dbusmppt.add_path('/Yield/System', 0)
-        self._dbusmppt.add_path('/ErrorCode', 0)
-        self._dbusmppt.add_path('/State', 0)
-        self._dbusmppt.add_path('/Mode', 0)
-        self._dbusmppt.add_path('/MppOperationMode', 0)
-        self._dbusmppt.add_path('/Relay/0/State', None)
-        # history
-        # self._dbusmppt.add_path('/History/Overall/DaysAvailable', 0)
-        # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
-        # self._dbusmppt.add_path('/History/Overall/MaxBatteryVoltage', 0)
-        # self._dbusmppt.add_path('/History/Overall/MinBatteryVoltage', 0)
+            # external control
+            self._dbusmppt.add_path('/Link/NetworkMode', 1) # <- Bitmask
+                            # 0x1 = External control
+                            # 0x4 = External voltage/current control
+                            # 0x8 = Controled by BMS (causes Error #67, BMS lost, if external control is interrupted).
+            self._dbusmppt.add_path('/Link/BatteryCurrent', 0)
+            self._dbusmppt.add_path('/Link/ChargeCurrent', 0)
+            self._dbusmppt.add_path('/Link/ChargeVoltage', 0)
+            self._dbusmppt.add_path('/Link/NetworkStatus', 4) # <- Bitmask
+                            # 0x01 = Slave
+                            # 0x02 = Master
+                            # 0x04 = Standalone
+                            # 0x20 = Using I-sense (/Link/BatteryCurrent)
+                            # 0x40 = Using T-sense (/Link/TemperatureSense)
+                            # 0x80 = Using V-sense (/Link/VoltageSense)
+            self._dbusmppt.add_path('/Link/TemperatureSense', 0)
+            self._dbusmppt.add_path('/Link/TemperatureSenseActive', 0)
+            self._dbusmppt.add_path('/Link/VoltageSense', 0)
+            self._dbusmppt.add_path('/Link/VoltageSenseActive', 0)
+            # settings
+            self._dbusmppt.add_path('/Settings/BmsPresent', None)
+            self._dbusmppt.add_path('/Settings/ChargeCurrentLimit', 80)
+            # other paths
+            self._dbusmppt.add_path('/Yield/User', 0)
+            self._dbusmppt.add_path('/Yield/System', 0)
+            self._dbusmppt.add_path('/ErrorCode', 0)
+            self._dbusmppt.add_path('/State', 0)
+            self._dbusmppt.add_path('/Mode', 0)
+            self._dbusmppt.add_path('/MppOperationMode', 0)
+            self._dbusmppt.add_path('/Relay/0/State', None)
+            # history
+            # self._dbusmppt.add_path('/History/Overall/DaysAvailable', 0)
+            # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
+            # self._dbusmppt.add_path('/History/Overall/MaxBatteryVoltage', 0)
+            # self._dbusmppt.add_path('/History/Overall/MinBatteryVoltage', 0)
 
-        logging.info(f"Paths for 'solarcharger' created.")
+            logging.info(f"Paths for 'solarcharger' created.")
 
         # Create paths for 'vebus'
         # self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
@@ -318,7 +339,12 @@ class DbusMppSolarService(object):
             return False
 
     def _update_PI18(self):
-       # raw = runInverterCommands(['GS','MOD','FWS'])
+        # Update charge voltage
+        if self.chargeVoltageControl == "external":
+            self.setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
+        else:
+            self.setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
+            self.set
         try:
             raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
             # logging.warning(raw)
@@ -327,7 +353,7 @@ class DbusMppSolarService(object):
             self._updateInternal()
             return True
         
-        # logging.warning("Max Charge Voltage : {:.1f}".format(self._systemMaxCharge.get_value()))
+        logging.warning("EffectiveChargeVoltage : {:.1f}".format(self._systemMaxCharge.get_value()))
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
@@ -352,25 +378,24 @@ class DbusMppSolarService(object):
             if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
                 i['/Ac/Out/L1/I'] = output_current
+            i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
 
             # Solar charger
-            if data.get('pv1_input_power', 0) > 0:
-                m['/State'] = 3
-            else:
-                m['/State'] = 0
-            m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
-            m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
-            m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
-            m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
-            m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User']) / 1000
-            m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System']) / 1000
-            m['/MppOperationMode'] = 2 if (data.get('pv1_input_power') != None and data.get('pv1_input_power') > 0) else 0
-            #m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
-            #m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
-            
-            # # Misc
-            i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
-            m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
+            if self.hasSolarConnected:
+                if data.get('pv1_input_power', 0) > 0:
+                    m['/State'] = 3
+                else:
+                    m['/State'] = 0
+                m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
+                m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
+                m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
+                m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
+                m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User']) / 1000
+                m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System']) / 1000
+                m['/MppOperationMode'] = 2 if (data.get('pv1_input_power') != None and data.get('pv1_input_power') > 0) else 0
+                m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
+                m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
+                m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
 
             # # Execute updates of previously updated values
             self._updateInternal()
