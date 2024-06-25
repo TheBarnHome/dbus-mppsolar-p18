@@ -138,7 +138,7 @@ class DbusMppSolarService(object):
                 if config[self._tty].get('chargeVoltageControl', "") != "external":
                     self.bulkVoltage = config[self._tty].get('bulkVoltage', "")
                     self.floatVoltage = config[self._tty].get('floatVoltage', "")
-                    logging.warning("Bulk voltage : {}, Float voltage: {}".format(bulkVoltage, floatVoltage))
+                    logging.warning("Bulk voltage : {}, Float voltage: {}".format(self.bulkVoltage, self.floatVoltage))
                 else:
                     logging.warning("Charge voltage control set to external.")
 
