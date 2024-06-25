@@ -341,11 +341,11 @@ class DbusMppSolarService(object):
     def _update_PI18(self):
         # Update charge voltage
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
-        
-        if self.chargeVoltageControl == "external":
-            setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
-        else:
-            setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
+
+        #if self.chargeVoltageControl == "external":
+         #   setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
+        #else:
+         #   setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
         try:
             raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
             # logging.warning(raw)
