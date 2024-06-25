@@ -140,7 +140,6 @@ class DbusMppSolarService(object):
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
         # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
-
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.settings', '/Settings/SystemSetup/MaxChargeVoltage')
 
         # Set up default paths
@@ -165,8 +164,8 @@ class DbusMppSolarService(object):
         # general data
         self._dbusmppt.add_path('/NrOfTrackers', 1)
         self._dbusmppt.add_path('/Pv/V', 0)
-        # self._dbusmppt.add_path('/Pv/0/V', 0)
-        # self._dbusmppt.add_path('/Pv/0/P', 0)
+        self._dbusmppt.add_path('/Pv/0/V', 0)
+        self._dbusmppt.add_path('/Pv/0/P', 0)
         self._dbusmppt.add_path('/Yield/Power', 0)
         self._dbusmppt.add_path('/DC/0/Temperature', 123)
         self._dbusmppt.add_path('/Dc/0/Voltage', 0)
@@ -328,7 +327,7 @@ class DbusMppSolarService(object):
             self._updateInternal()
             return True
         
-        logging.warning("Max Charge Voltage : {:.1f}".format(self._systemMaxCharge.get_value()))
+        # logging.warning("Max Charge Voltage : {:.1f}".format(self._systemMaxCharge.get_value()))
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
@@ -359,9 +358,9 @@ class DbusMppSolarService(object):
                 m['/State'] = 3
             else:
                 m['/State'] = 0
-            # m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
+            m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
             m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
-            # m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
+            m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
             m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
             m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User']) / 1000
             m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System']) / 1000
