@@ -181,7 +181,7 @@ class DbusMppSolarService(object):
         logging.info(f"Paths for Inverter created.")
 
         # Create paths for charger
-        if self.hasSolarConnected:
+        if hasSolarConnected:
             # general data
             self._dbusmppt.add_path('/NrOfTrackers', 1)
             self._dbusmppt.add_path('/Pv/V', 0)
