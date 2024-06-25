@@ -72,11 +72,11 @@ def setMaxChargingVoltage(bulk, float, protocol="PI18"):
     # For PI18 : MCHGV552,540 will set Bulk - CV voltage [480~584] in 0.1V xxx, Float voltage [480~584] in 0.1V
     try:
         if protocol == "PI18":
-            return runInverterCommands(['MCHGV{:d},{:d}'.format(int(bulk*10), int(float*10))], protocol)
+            return runInverterCommands(['MCHGV{},{}'.format(int(bulk*10), int(float*10))], protocol)
         else:
             return True
     except:
-        logging.warning("Fail to set max charging voltage to {:d} and {:d}".format(bulk, float))
+        logging.warning("Fail to set max charging voltage to {} and {}".format(bulk, float))
         return True
 
 def setMaxChargingCurrent(current, protocol="PI18"):
@@ -343,10 +343,10 @@ class DbusMppSolarService(object):
         # Update charge voltage
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
 
-        #if self.chargeVoltageControl == "external":
-         #   setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
-        #else:
-         #   setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
+        if self.chargeVoltageControl == "external":
+            setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
+        else:
+            setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
         try:
             raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
             # logging.warning(raw)
@@ -399,7 +399,7 @@ class DbusMppSolarService(object):
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
                 m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
-                
+
             # # Execute updates of previously updated values
             self._updateInternal()
         return True
