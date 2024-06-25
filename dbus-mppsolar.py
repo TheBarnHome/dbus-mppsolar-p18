@@ -378,6 +378,7 @@ class DbusMppSolarService(object):
             if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
                 i['/Ac/Out/L1/I'] = output_current
+            i['/Ac/Out/L1/F'] = data.get('ac_output_frequency', i['/Ac/Out/L1/F'])
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
 
             # Solar charger
@@ -392,7 +393,7 @@ class DbusMppSolarService(object):
                 m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
                 m['/Yield/User'] = generated.get('total_generated_energy', m['/Yield/User']) / 1000
                 m['/Yield/System'] = generated.get('total_generated_energy', m['/Yield/System']) / 1000
-                m['/MppOperationMode'] = 2 if (data.get('pv1_input_power') != None and data.get('pv1_input_power') > 0) else 0
+                m['/MppOperationMode'] = 2 if (data.get('pv1_input_power') > 0) else 0
                 m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
