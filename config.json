@@ -1,6 +1,7 @@
 {
   "hidraw1": {
     "productname": "Master",
+    "deviceinstance": 0,
     "hasSolarConnected": true,
     "chargeVoltageControl": "internal",
     "bulkVoltage": "55.2",
@@ -9,6 +10,7 @@
   },
   "hidraw0": {
     "productname": "Slave_1",
+    "deviceinstance": 1,
     "hasSolarConnected": false,
     "chargeVoltageControl": "internal",
     "bulkVoltage": "55.2",

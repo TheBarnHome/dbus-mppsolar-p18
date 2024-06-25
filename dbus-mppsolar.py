@@ -128,6 +128,7 @@ class DbusMppSolarService(object):
             with open(json_file_path, 'r') as json_file:
                 config = json.load(json_file)
             if tty in config:
+                deviceinstance = config[self._tty].get('deviceinstance', 0)
                 productname_value = config[self._tty].get('productname', None)
                 chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
                 hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
