@@ -129,19 +129,19 @@ class DbusMppSolarService(object):
                 config = json.load(json_file)
             if tty in config:
                 productname_value = config[self._tty].get('productname', None)
-                chargeVoltageControl = config[self._tty].get('chargeVoltageControl', None)
+                chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
                 hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
                 if productname_value is not None:
                     productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
-                if config[self._tty].get('chargeVoltageControl', None) != "external":
-                    bulkVoltage = config[self._tty].get('bulkVoltage', None)
-                    floatVoltage = config[self._tty].get('floatVoltage', None)
+                if config[self._tty].get('chargeVoltageControl', "") != "external":
+                    bulkVoltage = config[self._tty].get('bulkVoltage', "")
+                    floatVoltage = config[self._tty].get('floatVoltage', "")
                     logging.warning("Bulk voltage : {}, Float voltage: {}".format(bulkVoltage, floatVoltage))
                 else:
                     logging.warning("Charge voltage control set to external.")
 
-        if chargeVoltageControl != "external" & (bulkVoltage == None | floatVoltage == None):
+        if chargeVoltageControl != "external" & (bulkVoltage == "" | floatVoltage == ""):
             logging.warning("Config is wrong, quit.")
             sys.exit()
 
