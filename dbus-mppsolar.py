@@ -142,7 +142,7 @@ class DbusMppSolarService(object):
                 else:
                     logging.warning("Charge voltage control set to external.")
 
-        if chargeVoltageControl != "external" & (bulkVoltage == "" | floatVoltage == ""):
+        if chargeVoltageControl != "external" & (bulkVoltage == "" or floatVoltage == ""):
             logging.warning("Config is wrong, quit.")
             sys.exit()
 
