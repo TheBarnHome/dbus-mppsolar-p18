@@ -130,19 +130,19 @@ class DbusMppSolarService(object):
             if tty in config:
                 deviceinstance = config[self._tty].get('deviceinstance', 0)
                 productname_value = config[self._tty].get('productname', None)
-                chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
-                hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
+                self.chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
+                self.hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
                 if productname_value is not None:
                     productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
                 if config[self._tty].get('chargeVoltageControl', "") != "external":
-                    bulkVoltage = config[self._tty].get('bulkVoltage', "")
-                    floatVoltage = config[self._tty].get('floatVoltage', "")
+                    self.bulkVoltage = config[self._tty].get('bulkVoltage', "")
+                    self.floatVoltage = config[self._tty].get('floatVoltage', "")
                     logging.warning("Bulk voltage : {}, Float voltage: {}".format(bulkVoltage, floatVoltage))
                 else:
                     logging.warning("Charge voltage control set to external.")
 
-        if chargeVoltageControl != "external" and (bulkVoltage == "" or floatVoltage == ""):
+        if self.chargeVoltageControl != "external" and (self.bulkVoltage == "" or self.floatVoltage == ""):
             logging.warning("Config is wrong, quit.")
             sys.exit()
 
@@ -181,7 +181,7 @@ class DbusMppSolarService(object):
         logging.info(f"Paths for Inverter created.")
 
         # Create paths for charger
-        if hasSolarConnected:
+        if self.hasSolarConnected:
             # general data
             self._dbusmppt.add_path('/NrOfTrackers', 1)
             self._dbusmppt.add_path('/Pv/V', 0)
@@ -342,7 +342,7 @@ class DbusMppSolarService(object):
         # Update charge voltage
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
         
-        if self.chargeVoltageControl == "external":
+        if chargeVoltageControl == "external":
             self.setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
         else:
             self.setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
