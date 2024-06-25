@@ -174,6 +174,7 @@ class DbusMppSolarService(object):
         self._dbusinverter.add_path('/Ac/Out/L1/V', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/I', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/P', 0)
+        self._dbusinverter.add_path('/Ac/Out/L1/F', 0)
         self._dbusinverter.add_path('/Mode', 0)                     #<- Switch position: 2=Inverter on; 4=Off; 5=Low Power/ECO
         self._dbusinverter.add_path('/State', 0)                    #<- 0=Off; 1=Low Power; 2=Fault; 9=Inverting
         self._dbusinverter.add_path('/Temperature', 123)
@@ -370,7 +371,6 @@ class DbusMppSolarService(object):
 
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
-            m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
 
             # i['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
 
@@ -398,7 +398,8 @@ class DbusMppSolarService(object):
                 m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
-
+                m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
+                
             # # Execute updates of previously updated values
             self._updateInternal()
         return True
