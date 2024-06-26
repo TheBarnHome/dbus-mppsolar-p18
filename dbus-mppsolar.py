@@ -393,6 +393,7 @@ class DbusMppSolarService(object):
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
                 m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
+                m['/Dc/0/Current'] = data.get('battery_charging_current', 0)
 
             # VeBus
                 v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
