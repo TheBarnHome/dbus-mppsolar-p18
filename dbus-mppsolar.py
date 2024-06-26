@@ -72,11 +72,11 @@ def setMaxChargingVoltage(bulk, float, protocol="PI18"):
     # For PI18 : MCHGV552,540 will set Bulk - CV voltage [480~584] in 0.1V xxx, Float voltage [480~584] in 0.1V
     try:
         if protocol == "PI18":
-            return runInverterCommands(['MCHGV{:d},{:d}'.format(int(bulk*10), int(float*10))], protocol)
+            return runInverterCommands(['MCHGV{},{}'.format(int(bulk*10), int(float*10))], protocol)
         else:
             return True
     except:
-        logging.warning("Fail to set max charging voltage to {:d} and {:d}".format(bulk, float))
+        logging.warning("Fail to set max charging voltage to {} and {}".format(bulk, float))
         return True
 
 def setMaxChargingCurrent(current, protocol="PI18"):
@@ -130,19 +130,19 @@ class DbusMppSolarService(object):
             if tty in config:
                 deviceinstance = config[self._tty].get('deviceinstance', 0)
                 productname_value = config[self._tty].get('productname', None)
-                chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
-                hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
+                self.chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
+                self.hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
                 if productname_value is not None:
                     productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
                 if config[self._tty].get('chargeVoltageControl', "") != "external":
-                    bulkVoltage = config[self._tty].get('bulkVoltage', "")
-                    floatVoltage = config[self._tty].get('floatVoltage', "")
-                    logging.warning("Bulk voltage : {}, Float voltage: {}".format(bulkVoltage, floatVoltage))
+                    self.bulkVoltage = config[self._tty].get('bulkVoltage', "")
+                    self.floatVoltage = config[self._tty].get('floatVoltage', "")
+                    logging.warning("Bulk voltage : {}, Float voltage: {}".format(self.bulkVoltage, self.floatVoltage))
                 else:
                     logging.warning("Charge voltage control set to external.")
 
-        if chargeVoltageControl != "external" & (bulkVoltage == "" | floatVoltage == ""):
+        if self.chargeVoltageControl != "external" and (self.bulkVoltage == "" or self.floatVoltage == ""):
             logging.warning("Config is wrong, quit.")
             sys.exit()
 
@@ -161,7 +161,6 @@ class DbusMppSolarService(object):
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
         if self.hasSolarConnected: self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
-        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
@@ -175,6 +174,7 @@ class DbusMppSolarService(object):
         self._dbusinverter.add_path('/Ac/Out/L1/V', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/I', 0)
         self._dbusinverter.add_path('/Ac/Out/L1/P', 0)
+        self._dbusinverter.add_path('/Ac/Out/L1/F', 0)
         self._dbusinverter.add_path('/Mode', 0)                     #<- Switch position: 2=Inverter on; 4=Off; 5=Low Power/ECO
         self._dbusinverter.add_path('/State', 0)                    #<- 0=Off; 1=Low Power; 2=Fault; 9=Inverting
         self._dbusinverter.add_path('/Temperature', 123)
@@ -341,11 +341,12 @@ class DbusMppSolarService(object):
 
     def _update_PI18(self):
         # Update charge voltage
+        self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
+
         if self.chargeVoltageControl == "external":
-            self.setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
+            setMaxChargingVoltage("{:.1f}".format(self._systemMaxCharge.get_value()), "{:.1f}".format(self._systemMaxCharge.get_value()))
         else:
-            self.setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
-            self.set
+            setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
         try:
             raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
             # logging.warning(raw)
@@ -370,7 +371,6 @@ class DbusMppSolarService(object):
 
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
-            m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
 
             # i['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
 
@@ -398,6 +398,7 @@ class DbusMppSolarService(object):
                 m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
+                m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
 
             # VeBus
                 v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
