@@ -159,13 +159,13 @@ class DbusMppSolarService(object):
         
         # Create the services
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
-        # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
+        if self.hasSolarConnected: self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
-        # self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
+        if self.hasSolarConnected: self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
         self.setupChargerDefaultPaths(self._dbusmppt, connection, deviceinstance, f"Charger {productname}")
 
         # self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
@@ -248,13 +248,13 @@ class DbusMppSolarService(object):
         # self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
 
         # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
-        # self._dbusvebus.add_path('/Dc/0/Voltage', 0)
-        # self._dbusvebus.add_path('/Dc/0/Current', 0)
-        # self._dbusvebus.add_path('/Pv/0/V',0)
-        # self._dbusvebus.add_path('/Pv/V',0)
-        # self._dbusvebus.add_path('/Pv/0/P',0)
-        # self._dbusvebus.add_path('/Yield/Power',0)
-        # self._dbusvebus.add_path('/MppOperationMode',0)
+            self._dbusvebus.add_path('/Dc/0/Voltage', 0)
+            self._dbusvebus.add_path('/Dc/0/Current', 0)
+            self._dbusvebus.add_path('/Pv/0/V',0)
+            self._dbusvebus.add_path('/Pv/V',0)
+            self._dbusvebus.add_path('/Pv/0/P',0)
+            self._dbusvebus.add_path('/Yield/Power',0)
+            self._dbusvebus.add_path('/MppOperationMode',0)
 
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
         # self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
@@ -358,7 +358,7 @@ class DbusMppSolarService(object):
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
-        with self._dbusinverter as i, self._dbusmppt as m:           # self._dbusvebus as v,
+        with self._dbusinverter as i, self._dbusvebus as v, self._dbusmppt as m:
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
             if invMode == 'Battery mode':
@@ -399,7 +399,15 @@ class DbusMppSolarService(object):
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
 
-            # # Execute updates of previously updated values
+            # VeBus
+                v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
+                v['/Pv/0/V'] = data.get('pv1_input_power', v['/Pv/0/P'])
+                v['/Pv/V'] = data.get('pv1_input_voltage', v['/Pv/V'])
+                v['/Pv/0/P'] = data.get('pv1_input_power', v['/Pv/0/P'])
+                v['/Yield/Power'] = data.get('pv1_input_power', v['/Yield/Power'])
+                v['/MppOperationMode'] = 2 if (data.get('pv1_input_power') > 0) else 0
+
+            # Execute updates of previously updated values
             self._updateInternal()
         return True
 
