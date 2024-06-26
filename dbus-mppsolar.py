@@ -361,7 +361,7 @@ class DbusMppSolarService(object):
 
             v['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
             v['/Dc/0/Voltage'] = i['/Dc/0/Voltage']
-            
+
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
             v['/Ac/Out/L1/V'] = i['/Ac/Out/L1/V']
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
@@ -373,7 +373,6 @@ class DbusMppSolarService(object):
             i['/Ac/Out/L1/F'] = data.get('ac_output_frequency', i['/Ac/Out/L1/F'])
             v['/Ac/Out/L1/F'] = i['/Ac/Out/L1/F']
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
-            v['/Temperature'] = i['/Temperature']
 
             # Solar charger
             if self.hasSolarConnected:
