@@ -76,7 +76,7 @@ def setMaxChargingVoltage(bulk, float, protocol="PI18"):
         else:
             return True
     except:
-        logging.warning("Fail to set max charging voltage to {} and {}".format(bulk, float))
+        logging.warning("Fail to set max charging voltage to {} and {}".format(bulk, float), exc_info=True)
         return True
 
 def setMaxChargingCurrent(current, protocol="PI18"):
