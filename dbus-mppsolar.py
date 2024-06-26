@@ -159,12 +159,12 @@ class DbusMppSolarService(object):
         
         # Create the services
         self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
-        if self.hasSolarConnected: self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
+        self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
-        if self.hasSolarConnected: self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
+        self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
         self.setupChargerDefaultPaths(self._dbusmppt, connection, deviceinstance, f"Charger {productname}")
 
         # self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
@@ -178,7 +178,20 @@ class DbusMppSolarService(object):
         self._dbusinverter.add_path('/Mode', 0)                     #<- Switch position: 2=Inverter on; 4=Off; 5=Low Power/ECO
         self._dbusinverter.add_path('/State', 0)                    #<- 0=Off; 1=Low Power; 2=Fault; 9=Inverting
         self._dbusinverter.add_path('/Temperature', 123)
-           
+
+        self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
+        self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
+        self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
+        self._dbusvebus.add_path('/Ac/In/1/Type', 0) #0=Unused;1=Grid;2=Genset;3=Shore
+        self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
+        self._dbusvebus.add_path('/ModeIsAdjustable', 0)
+        self._dbusvebus.add_path('/State', 0)
+        self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 0)
+        self._dbusvebus.add_path('/Dc/0/Voltage', 0)
+        self._dbusvebus.add_path('/Dc/0/Current', 0)
+
         logging.info(f"Paths for Inverter created.")
 
         # Create paths for charger
@@ -231,40 +244,11 @@ class DbusMppSolarService(object):
 
             logging.info(f"Paths for 'solarcharger' created.")
 
-        # Create paths for 'vebus'
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/F', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/I', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/V', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/P', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/L1/S', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/P', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/S', 0)
-        # self._dbusvebus.add_path('/Ac/ActiveIn/ActiveInput', 0)
-
-        # self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/S', 0)
-        # self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
-
-        # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
-            self._dbusvebus.add_path('/Dc/0/Voltage', 0)
-            self._dbusvebus.add_path('/Dc/0/Current', 0)
             self._dbusvebus.add_path('/Pv/0/V',0)
             self._dbusvebus.add_path('/Pv/V',0)
             self._dbusvebus.add_path('/Pv/0/P',0)
             self._dbusvebus.add_path('/Yield/Power',0)
             self._dbusvebus.add_path('/MppOperationMode',0)
-
-        # self._dbusvebus.add_path('/Ac/In/1/CurrentLimit', 20, writeable=True, onchangecallback=self._change)
-        # self._dbusvebus.add_path('/Ac/In/1/CurrentLimitIsAdjustable', 1)
-        # self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 1)
-        # self._dbusvebus.add_path('/Ac/In/1/Type', 1) #0=Unused;1=Grid;2=Genset;3=Shore
-        
-        # self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
-        # self._dbusvebus.add_path('/ModeIsAdjustable', 1)
-        # self._dbusvebus.add_path('/State', 0)
-        # self._dbusvebus.add_path('/Ac/In/1/L1/V', 0, writeable=False, onchangecallback=self._change)
 
         GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
@@ -364,30 +348,41 @@ class DbusMppSolarService(object):
             invMode = mode.get('working_mode', i['/State'])
             if invMode == 'Battery mode':
                 i['/State'] = 9 # Inverting
+                # v['/State'] = 9
             elif invMode == 'Fault mode':
                 i['/State'] = 2 # Fault mode
+                # v['/State'] = 2
             else:
                 i['/State'] = 0 # OFF
+                # v['/State'] = 0
 
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
 
-            # i['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
-
+            v['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
+            v['/Dc/0/Voltage'] = i['/Dc/0/Voltage']
+            
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
+            v['/Ac/Out/L1/V'] = i['/Ac/Out/L1/V']
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
+            v['/Ac/Out/L1/P'] = i['/Ac/Out/L1/P']
             if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
                 i['/Ac/Out/L1/I'] = output_current
+                v['/Ac/Out/L1/I'] = output_current
             i['/Ac/Out/L1/F'] = data.get('ac_output_frequency', i['/Ac/Out/L1/F'])
+            v['/Ac/Out/L1/F'] = i['/Ac/Out/L1/F']
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
+            v['/Temperature'] = i['/Temperature']
 
             # Solar charger
             if self.hasSolarConnected:
                 if data.get('pv1_input_power', 0) > 0:
                     m['/State'] = 3
+                    v['/State'] = 3
                 else:
                     m['/State'] = 0
+                    v['/State'] = 0
                 m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
                 m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
                 m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
