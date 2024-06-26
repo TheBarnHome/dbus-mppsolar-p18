@@ -296,7 +296,7 @@ class DbusMppSolarService(object):
             for path, value, in self._queued_updates:
                 i[path] = value
                 m[path] = value
-                v[path] = value
+                # v[path] = value
             self._queued_updates = []
 
     def _update(self):
@@ -360,29 +360,29 @@ class DbusMppSolarService(object):
             # Normal operation, read data
             i['/Dc/0/Voltage'] = data.get('battery_voltage', i['/Dc/0/Voltage'])
 
-            v['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
-            v['/Dc/0/Voltage'] = i['/Dc/0/Voltage']
+            # v['/Dc/0/Current'] = data.get('battery_charging_current', 0) - data.get('battery_discharge_current', 0)
+            # v['/Dc/0/Voltage'] = i['/Dc/0/Voltage']
 
             i['/Ac/Out/L1/V'] = data.get('ac_output_voltage', i['/Ac/Out/L1/V'])
-            v['/Ac/Out/L1/V'] = i['/Ac/Out/L1/V']
+            # v['/Ac/Out/L1/V'] = i['/Ac/Out/L1/V']
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
-            v['/Ac/Out/L1/P'] = i['/Ac/Out/L1/P']
+            # v['/Ac/Out/L1/P'] = i['/Ac/Out/L1/P']
             if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
                 i['/Ac/Out/L1/I'] = output_current
-                v['/Ac/Out/L1/I'] = output_current
+                # v['/Ac/Out/L1/I'] = output_current
             i['/Ac/Out/L1/F'] = data.get('ac_output_frequency', i['/Ac/Out/L1/F'])
-            v['/Ac/Out/L1/F'] = i['/Ac/Out/L1/F']
+            # v['/Ac/Out/L1/F'] = i['/Ac/Out/L1/F']
             i['/Temperature'] = data.get('inverter_heat_sink_temperature', i['/Temperature'])
 
             # Solar charger
             if self.hasSolarConnected:
                 if data.get('pv1_input_power', 0) > 0:
                     m['/State'] = 3
-                    v['/State'] = 3
+                    # v['/State'] = 3
                 else:
                     m['/State'] = 0
-                    v['/State'] = 0
+                    # v['/State'] = 0
                 m['/Pv/0/V'] = data.get('pv1_input_voltage', m['/Pv/0/V'])
                 m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
                 m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
@@ -397,12 +397,12 @@ class DbusMppSolarService(object):
                 m['/Dc/0/Current'] = data.get('battery_charging_current', 0)
 
             # VeBus
-                v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
-                v['/Pv/0/V'] = data.get('pv1_input_power', v['/Pv/0/P'])
-                v['/Pv/V'] = data.get('pv1_input_voltage', v['/Pv/V'])
-                v['/Pv/0/P'] = data.get('pv1_input_power', v['/Pv/0/P'])
-                v['/Yield/Power'] = data.get('pv1_input_power', v['/Yield/Power'])
-                v['/MppOperationMode'] = 2 if (data.get('pv1_input_power') > 0) else 0
+                # v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
+                # v['/Pv/0/V'] = data.get('pv1_input_power', v['/Pv/0/P'])
+                # v['/Pv/V'] = data.get('pv1_input_voltage', v['/Pv/V'])
+                # v['/Pv/0/P'] = data.get('pv1_input_power', v['/Pv/0/P'])
+                # v['/Yield/Power'] = data.get('pv1_input_power', v['/Yield/Power'])
+                # v['/MppOperationMode'] = 2 if (data.get('pv1_input_power') > 0) else 0
 
             # Execute updates of previously updated values
             self._updateInternal()
