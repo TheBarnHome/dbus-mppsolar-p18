@@ -158,13 +158,13 @@ class DbusMppSolarService(object):
         logging.warning(f"Connected to inverter on {tty} ({self._invProtocol}), setting up dbus with /DeviceInstance = {deviceinstance}")
         
         # Create the services
-        self._dbusinverter = VeDbusService(f'com.victronenergy.multi.mppsolar-inverter.{tty}', dbusconnection())
-        self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
+        self._dbusinverter = VeDbusService(f'com.victronenergy.inverter.mppsolar-inverter.{tty}', dbusconnection())
+        # self._dbusvebus = VeDbusService(f'com.victronenergy.vebus.mppsolar.{tty}', dbusconnection())
         self._dbusmppt = VeDbusService(f'com.victronenergy.solarcharger.mppsolar-charger.{tty}', dbusconnection())
 
         # Set up default paths
         self.setupInverterDefaultPaths(self._dbusinverter, connection, deviceinstance, f"Inverter {productname}")
-        self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
+        # self.setupInverterDefaultPaths(self._dbusvebus, connection, deviceinstance, f"Vebus {productname}")
         self.setupChargerDefaultPaths(self._dbusmppt, connection, deviceinstance, f"Charger {productname}")
 
         # self._system = VeDbusItemImport(dbusconnection(), f'com.victronenergy.system', '/Connected')
@@ -179,18 +179,18 @@ class DbusMppSolarService(object):
         self._dbusinverter.add_path('/State', 0)                    #<- 0=Off; 1=Low Power; 2=Fault; 9=Inverting
         self._dbusinverter.add_path('/Temperature', 123)
 
-        self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
-        self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
-        self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
-        self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
-        self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
-        self._dbusvebus.add_path('/Ac/In/1/Type', 0) #0=Unused;1=Grid;2=Genset;3=Shore
-        self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
-        self._dbusvebus.add_path('/ModeIsAdjustable', 0)
-        self._dbusvebus.add_path('/State', 0)
-        self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 0)
-        self._dbusvebus.add_path('/Dc/0/Voltage', 0)
-        self._dbusvebus.add_path('/Dc/0/Current', 0)
+        # self._dbusvebus.add_path('/Ac/Out/L1/V', 0)
+        # self._dbusvebus.add_path('/Ac/Out/L1/I', 0)
+        # self._dbusvebus.add_path('/Ac/Out/L1/P', 0)
+        # self._dbusvebus.add_path('/Ac/Out/L1/F', 0)
+        # self._dbusvebus.add_path('/Ac/NumberOfPhases', 1)
+        # self._dbusvebus.add_path('/Ac/In/1/Type', 0) #0=Unused;1=Grid;2=Genset;3=Shore
+        # self._dbusvebus.add_path('/Mode', 0, writeable=True, onchangecallback=self._change)
+        # self._dbusvebus.add_path('/ModeIsAdjustable', 0)
+        # self._dbusvebus.add_path('/State', 0)
+        # self._dbusvebus.add_path('/Settings/SystemSetup/AcInput1', 0)
+        # self._dbusvebus.add_path('/Dc/0/Voltage', 0)
+        # self._dbusvebus.add_path('/Dc/0/Current', 0)
 
         logging.info(f"Paths for Inverter created.")
 
@@ -244,11 +244,11 @@ class DbusMppSolarService(object):
 
             logging.info(f"Paths for 'solarcharger' created.")
 
-            self._dbusvebus.add_path('/Pv/0/V',0)
-            self._dbusvebus.add_path('/Pv/V',0)
-            self._dbusvebus.add_path('/Pv/0/P',0)
-            self._dbusvebus.add_path('/Yield/Power',0)
-            self._dbusvebus.add_path('/MppOperationMode',0)
+            # self._dbusvebus.add_path('/Pv/0/V',0)
+            # self._dbusvebus.add_path('/Pv/V',0)
+            # self._dbusvebus.add_path('/Pv/0/P',0)
+            # self._dbusvebus.add_path('/Yield/Power',0)
+            # self._dbusvebus.add_path('/MppOperationMode',0)
 
         GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
@@ -292,7 +292,7 @@ class DbusMppSolarService(object):
 
     def _updateInternal(self):
         # Store in the paths all values that were updated from _handleChangedValue
-        with self._dbusinverter as i, self._dbusmppt as m, self._dbusvebus as v:# self._dbusvebus as v:
+        with self._dbusinverter as i, self._dbusmppt as m:# self._dbusvebus as v:
             for path, value, in self._queued_updates:
                 i[path] = value
                 m[path] = value
@@ -344,7 +344,7 @@ class DbusMppSolarService(object):
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
-        with self._dbusinverter as i, self._dbusvebus as v, self._dbusmppt as m:
+        with self._dbusinverter as i, self._dbusmppt as m: # self._dbusvebus as v, 
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
             if invMode == 'Battery mode':
