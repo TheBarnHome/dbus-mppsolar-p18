@@ -5,7 +5,7 @@
     "hasSolarConnected": true,
     "chargeVoltageControl": "internal",
     "bulkVoltage": 55.2,
-    "floatVoltage": 53.6,
+    "floatVoltage": 55.2,
     "maxChargeCurrent": 80
   },
   "hidraw0": {
@@ -14,7 +14,7 @@
     "hasSolarConnected": false,
     "chargeVoltageControl": "internal",
     "bulkVoltage": 55.2,
-    "floatVoltage": 53.6,
+    "floatVoltage": 55.2,
     "maxChargeCurrent": 80
   }
 }
