@@ -72,7 +72,7 @@ def setMaxChargingVoltage(bulk, float, protocol="PI18"):
     # For PI18 : MCHGV552,540 will set Bulk - CV voltage [480~584] in 0.1V xxx, Float voltage [480~584] in 0.1V
     try:
         if protocol == "PI18":
-            return runInverterCommands(['MCHGV{},{}'.format(int(bulk*10), int(float*10))], protocol)
+            return runInverterCommands(['MCHGV{},{}'.format(int(float(bulk)*10), int(float(float)*10))], protocol)
         else:
             return True
     except:
