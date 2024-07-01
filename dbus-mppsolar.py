@@ -328,7 +328,7 @@ class DbusMppSolarService(object):
         # Update charge voltage
         self._systemMaxCharge = VeDbusItemImport(dbusconnection(), 'com.victronenergy.system', '/Control/EffectiveChargeVoltage')
 
-        if self.chargeVoltageControl == "external":
+        if self.chargeVoltageControl == "external" and self._systemMaxCharge.get_value() != None:
             setMaxChargingVoltage(self._systemMaxCharge.get_value(), self._systemMaxCharge.get_value())
         else:
             setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
