@@ -146,6 +146,10 @@ class DbusMppSolarService(object):
             logging.warning("Config is wrong, quit.")
             sys.exit()
 
+        if not os.path.exists("/dev/{}".format(tty)):
+            logging.warning("Inverter not connected on {}".format(tty))
+            sys.exit()
+
         self._invProtocol = 'PI18'
         logging.warning(f"Protocol set to PI18.")
         
