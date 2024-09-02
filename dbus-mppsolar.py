@@ -254,7 +254,7 @@ class DbusMppSolarService(object):
             # self._dbusvebus.add_path('/Yield/Power',0)
             # self._dbusvebus.add_path('/MppOperationMode',0)
 
-        GLib.timeout_add(config[self._tty].get('updateInterval', "10000"), self._update)
+        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
     
     def setupInverterDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
