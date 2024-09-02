@@ -222,6 +222,7 @@ eval $(load_config "$SS_CONFIG")
 
 while true; do
     TTYS=$(ls /dev/serial-starter/ 2>/dev/null)
+    TTYS="$TTYS $(ls /dev/hidraw* 2>/dev/null)"
     for TTY in $TTYS; do
         CACHE_FILE="$CACHE_DIR/$TTY"
         PROG_FILE="/tmp/$TTY.prog"
