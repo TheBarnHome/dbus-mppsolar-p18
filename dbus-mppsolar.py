@@ -335,8 +335,11 @@ class DbusMppSolarService(object):
         if self.chargeVoltageControl == "external" and self._systemMaxCharge.get_value() != None:
             setMaxChargingVoltage(self._systemMaxCharge.get_value(), self._systemMaxCharge.get_value())
         else:
-            if self.bulkVoltage and self.floatVoltage:
-                setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
+            try:
+                if self.bulkVoltage and self.floatVoltage:
+                    setMaxChargingVoltage(self.bulkVoltage, self.floatVoltage)
+            except:
+                logging.warning("bulkVoltage and/or floatVoltage not defined.", exc_info=True)
         try:
             raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
             # logging.warning(raw)
