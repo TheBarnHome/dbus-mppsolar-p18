@@ -348,7 +348,7 @@ class DbusMppSolarService(object):
             self._updateInternal()
             return True
         
-        logging.warning("EffectiveChargeVoltage : {}".format(self._systemMaxCharge.get_value()))
+        # logging.warning("EffectiveChargeVoltage : {}".format(self._systemMaxCharge.get_value()))
         
     # data, mode, warnings = raw
         generated, data, mode, rated = raw
