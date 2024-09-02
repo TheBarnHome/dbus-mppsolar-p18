@@ -6,7 +6,8 @@
     "chargeVoltageControl": "external",
     "bulkVoltage": 55.2,
     "floatVoltage": 55.2,
-    "maxChargeCurrent": 80
+    "maxChargeCurrent": 80,
+    "updateInterval": 5000
   },
   "hidraw0": {
     "productname": "Slave_1",
@@ -15,6 +16,7 @@
     "chargeVoltageControl": "external",
     "bulkVoltage": 55.2,
     "floatVoltage": 55.2,
-    "maxChargeCurrent": 80
+    "maxChargeCurrent": 80,
+    "updateInterval": 5000
   }
 }
