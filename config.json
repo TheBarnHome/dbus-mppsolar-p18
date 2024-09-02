@@ -7,7 +7,7 @@
     "bulkVoltage": 55.2,
     "floatVoltage": 55.2,
     "maxChargeCurrent": 80,
-    "updateInterval": 5000
+    "updateInterval": 10000
   },
   "hidraw0": {
     "productname": "Slave_1",
@@ -17,6 +17,6 @@
     "bulkVoltage": 55.2,
     "floatVoltage": 55.2,
     "maxChargeCurrent": 80,
-    "updateInterval": 5000
+    "updateInterval": 10000
   }
 }
