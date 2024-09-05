@@ -4,4 +4,5 @@
 [submodule "mpp-solar"]
 	path = mpp-solar
 	# url = https://github.com/DarkZeros/mpp-solar
-	url = https://github.com/jblance/mpp-solar
+	# url = https://github.com/jblance/mpp-solar
+	url = https://github.com/TheBarnHome/mpp-solar

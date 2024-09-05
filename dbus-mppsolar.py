@@ -341,7 +341,7 @@ class DbusMppSolarService(object):
             except:
                 logging.warning("bulkVoltage and/or floatVoltage not defined.")
         try:
-            raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
+            raw = runInverterCommands(['ET','GS','MOD','PIRI', 'FWS'], "PI18")
             # logging.warning(raw)
         except:
             logging.warning("Error in update PI18 loop.", exc_info=True)
@@ -351,7 +351,7 @@ class DbusMppSolarService(object):
         # logging.warning("EffectiveChargeVoltage : {}".format(self._systemMaxCharge.get_value()))
         
     # data, mode, warnings = raw
-        generated, data, mode, rated = raw
+        generated, data, mode, rated, alerts = raw
         with self._dbusinverter as i, self._dbusmppt as m: # self._dbusvebus as v, 
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
