@@ -132,6 +132,7 @@ class DbusMppSolarService(object):
                 productname_value = config[self._tty].get('productname', None)
                 self.chargeVoltageControl = config[self._tty].get('chargeVoltageControl', "")
                 self.hasSolarConnected = config[self._tty].get('hasSolarConnected', False)
+                self.updateInterval = config[self._tty].get('updateInterval', 10000)
                 if productname_value is not None:
                     productname = productname_value
                     logging.warning("Product named from config : {}".format(productname_value))
@@ -254,7 +255,7 @@ class DbusMppSolarService(object):
             # self._dbusvebus.add_path('/Yield/Power',0)
             # self._dbusvebus.add_path('/MppOperationMode',0)
 
-        GLib.timeout_add(10000 if USE_SYSTEM_MPPSOLAR else 10000, self._update)
+        GLib.timeout_add(self.updateInterval if USE_SYSTEM_MPPSOLAR else self.updateInterval, self._update)
     
     def setupInverterDefaultPaths(self, service, connection, deviceinstance, productname):
         # Create the management objects, as specified in the ccgx dbus-api document
@@ -353,7 +354,7 @@ class DbusMppSolarService(object):
     # data, mode, warnings = raw
         generated, data, mode, rated, alerts = raw
         logging.warning(alerts)
-        
+
         with self._dbusinverter as i, self._dbusmppt as m: # self._dbusvebus as v, 
             # 0=Off;1=Low Power;2=Fault;9=Inverting
             invMode = mode.get('working_mode', i['/State'])
