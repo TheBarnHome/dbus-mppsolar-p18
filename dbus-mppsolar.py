@@ -348,11 +348,11 @@ class DbusMppSolarService(object):
             self._updateInternal()
             return True
 
-        try:
-            alerts = runInverterCommands(['FWS'], "PI18")
-            logging.warning(alerts)
-        except:
-            logging.warning("Error in update PI18 loop for FWS", exc_info=True)
+        # try:
+        #     alerts = runInverterCommands(['FWS'], "PI18")
+        #     logging.warning(alerts)
+        # except:
+        #     logging.warning("Error in update PI18 loop for FWS", exc_info=True)
             
         # logging.warning("EffectiveChargeVoltage : {}".format(self._systemMaxCharge.get_value()))
         
