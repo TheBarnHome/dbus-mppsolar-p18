@@ -221,9 +221,9 @@ echo "serstart starting"
 eval $(load_config "$SS_CONFIG")
 
 while true; do
-    #TTYS=$(ls /dev/hidraw* 2>/dev/null)
-    TTYS=$(ls /dev/serial-starter/ 2>/dev/null)
-    TTYS="$TTYS $(ls /dev/hidraw* 2>/dev/null)"
+    TTYS=$(ls /dev/hidraw* 2>/dev/null)
+    #TTYS=$(ls /dev/serial-starter/ 2>/dev/null)
+    #TTYS="$TTYS $(ls /dev/hidraw* 2>/dev/null)"
     for TTY in $TTYS; do
         CACHE_FILE="$CACHE_DIR/$TTY"
         PROG_FILE="/tmp/$TTY.prog"
@@ -231,7 +231,7 @@ while true; do
         lock_tty $TTY || continue
 
         # device may have vanished while running for loop
-        if ! test -e /dev/serial-starter/$TTY; then
+        if ! test -e $TTY; then
             unlock_tty $TTY
             continue
         fi
@@ -242,13 +242,13 @@ while true; do
         PROGRAMS=$(get_alias $PROGRAMS)
 
         if [ "$PROGRAMS" = ignore ]; then
-            rm /dev/serial-starter/$TTY
+            rm $TTY
             unlock_tty $TTY
             continue
         elif [ "${PROGRAMS%%:*}" = "${PROGRAMS}" ]; then
             AUTOPROG=n
             PROGRAM=$PROGRAMS
-            rm /dev/serial-starter/$TTY
+            rm $TTY
         else
             AUTOPROG=y
 
@@ -268,7 +268,7 @@ while true; do
 
         for n in $(echo $PROGRAMS | tr : ' '); do
             mkdir -p /run/serial-starter/$n
-            ln -sf /dev/$TTY /run/serial-starter/$n/$TTY
+            ln -sf $TTY /run/serial-starter/$n/$TTY
         done
 
         echo "$PROGRAM" >"$CACHE_FILE"
