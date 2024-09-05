@@ -397,7 +397,7 @@ class DbusMppSolarService(object):
                 m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
                 m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
                 m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
-                if generated.get('total_generated_energy') != 0:
+                if generated.get('total_generated_energy') != 0 and generated.get('total_generated_energy') != None:
                     m['/Yield/User'] = generated.get('total_generated_energy') / 1000
                     m['/Yield/System'] = generated.get('total_generated_energy') / 1000
                 m['/MppOperationMode'] = 2 if (data.get('pv1_input_power', 0) > 0) else 0
