@@ -36,7 +36,7 @@ if USE_SYSTEM_MPPSOLAR:
     try:
         import mppsolar
     except:
-        USE_SYSTEM_MPPSOLAR = FALSE
+        USE_SYSTEM_MPPSOLAR = False
 if not USE_SYSTEM_MPPSOLAR:
     sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'mpp-solar'))
     import mppsolar
@@ -375,7 +375,7 @@ class DbusMppSolarService(object):
             # v['/Ac/Out/L1/V'] = i['/Ac/Out/L1/V']
             i['/Ac/Out/L1/P'] = data.get('ac_output_active_power', i['/Ac/Out/L1/P'])
             # v['/Ac/Out/L1/P'] = i['/Ac/Out/L1/P']
-            if i['/Ac/Out/L1/V'] != 0 & i['/Ac/Out/L1/P'] != 0:
+            if i['/Ac/Out/L1/V'] != 0 and i['/Ac/Out/L1/P'] != 0:
                 output_current = i['/Ac/Out/L1/P'] / i['/Ac/Out/L1/V']
                 i['/Ac/Out/L1/I'] = output_current
                 # v['/Ac/Out/L1/I'] = output_current
