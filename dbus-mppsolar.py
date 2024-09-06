@@ -37,6 +37,15 @@ if not USE_SYSTEM_MPPSOLAR:
     sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'mpp-solar'))
     import mppsolar
 
+# For production history
+global energyProductionDays
+global currentDay
+global minBatteryVoltage
+global maxBatteryVoltage
+global maxBatteryCurrent
+global maxPVPower
+global maxPVVoltage
+    
 # Inverter commands to read from the serial
 def runInverterCommands(commands, protocol="PI18"):
     global args
@@ -120,14 +129,6 @@ class DbusMppSolarService(object):
         self._queued_updates = []
         
         # For production history
-        global energyProductionDays
-        global currentDay
-        global minBatteryVoltage
-        global maxBatteryVoltage
-        global maxBatteryCurrent
-        global maxPVPower
-        global maxPVVoltage
-
         energyProductionDays = int(1)
         currentDay = 0
         minBatteryVoltage = 100.0
