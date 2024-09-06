@@ -127,7 +127,7 @@ class DbusMppSolarService(object):
         global maxBatteryCurrent
         global maxPVPower
         global maxPVVoltage
-        
+
         energyProductionDays = int(1)
         currentDay = 0
         minBatteryVoltage = 100.0
@@ -257,7 +257,7 @@ class DbusMppSolarService(object):
             
             # history
             self._dbusmppt.add_path('/History/Overall/DaysAvailable', 2)
-            for day in range(self.energyProductionDays):
+            for day in range(energyProductionDays):
                 # history daily
                 self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Yield", 0)
                 self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Consumption", 0)
