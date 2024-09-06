@@ -274,9 +274,7 @@ class DbusMppSolarService(object):
             self._dbusmppt.add_path("/History/Daily/0/LastError2", 0)
             self._dbusmppt.add_path("/History/Daily/0/LastError3", 0)
             self._dbusmppt.add_path("/History/Daily/0/LastError4", 0)
-            self._dbusmppt.add_path("/History/Daily/0/Pv/0/Yield", 0)
-            self._dbusmppt.add_path("/History/Daily/0/Pv/0/MaxPower", 0)
-            self._dbusmppt.add_path("/History/Daily/0/Pv/0/MaxVoltage", 0)
+
                 
             # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
             # self._dbusmppt.add_path('/History/Overall/MaxBatteryVoltage', 0)
@@ -450,7 +448,6 @@ class DbusMppSolarService(object):
                 # History
                 # if generatedToday.get("generated_energy_for_day") != 0 and generatedToday.get("generated_energy_for_day") != None:
                 #     m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
-                #     m["/History/Daily/0/PV/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
                 
                 # if generatedToday.get("day") != currentDay:
                 #     # Reset daily history when day change
@@ -461,17 +458,15 @@ class DbusMppSolarService(object):
                 #     minBatteryVoltage = 0
                 #     maxBatteryCurrent = 0
 
-                if data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
-                    #m["/History/Daily/0/PV/0/MaxVoltage"] = data.get('pv1_input_voltage')
+                if data.get('pv1_input_voltage') != None and data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
                     m["/History/Daily/0/MaxPvVoltage"] = data.get('pv1_input_voltage')
-                if data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
+                if data.get('pv1_input_power') != None and data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
                     m["/History/Daily/0/MaxPower"] = data.get('pv1_input_power')
-                    #m["/History/Daily/0/PV/0/MaxPower"] = data.get('pv1_input_power')
-                if data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
+                if data.get('battery_voltage') != None and data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
                     m["/History/Daily/0/MaxBatteryVoltage"] = data.get('battery_voltage')
-                if data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
+                if data.get('battery_voltage') != None and data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
                     m["/History/Daily/0/MinBatteryVoltage"] = data.get('battery_voltage')
-                if data.get('battery_charging_current') > m["/History/Daily/0/MaxBatteryCurrent"]:
+                if data.get('battery_charging_current') != None and data.get('battery_charging_current') > m["/History/Daily/0/MaxBatteryCurrent"]:
                     m["/History/Daily/0/MaxBatteryCurrent"] = data.get('battery_charging_current')
 
             # VeBus
