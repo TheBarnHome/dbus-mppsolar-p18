@@ -462,11 +462,11 @@ class DbusMppSolarService(object):
                 #     maxBatteryCurrent = 0
 
                 if data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
-                    m["/History/Daily/0/PV/0/MaxVoltage"] = data.get('pv1_input_voltage')
+                    #m["/History/Daily/0/PV/0/MaxVoltage"] = data.get('pv1_input_voltage')
                     m["/History/Daily/0/MaxPvVoltage"] = data.get('pv1_input_voltage')
                 if data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
                     m["/History/Daily/0/MaxPower"] = data.get('pv1_input_power')
-                    m["/History/Daily/0/PV/0/MaxPower"] = data.get('pv1_input_power')
+                    #m["/History/Daily/0/PV/0/MaxPower"] = data.get('pv1_input_power')
                 if data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
                     m["/History/Daily/0/MaxBatteryVoltage"] = data.get('battery_voltage')
                 if data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
