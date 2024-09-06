@@ -447,18 +447,18 @@ class DbusMppSolarService(object):
                 m['/Dc/0/Current'] = data.get('battery_charging_current', m['/Dc/0/Current'])
 
                 # History
-                if generatedToday.get("generated_energy_for_day") != 0 and generatedToday.get("generated_energy_for_day") != None:
-                    m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
-                    m["/History/Daily/0/PV/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
+                # if generatedToday.get("generated_energy_for_day") != 0 and generatedToday.get("generated_energy_for_day") != None:
+                #     m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
+                #     m["/History/Daily/0/PV/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
                 
-                if generatedToday.get("day") != currentDay:
-                    # Reset daily history when day change
-                    currentDay = generatedToday.get("day")
-                    maxPVVoltage = 0
-                    maxPVPower = 0
-                    maxBatteryVoltage = 0
-                    minBatteryVoltage = 0
-                    maxBatteryCurrent = 0
+                # if generatedToday.get("day") != currentDay:
+                #     # Reset daily history when day change
+                #     currentDay = generatedToday.get("day")
+                #     maxPVVoltage = 0
+                #     maxPVPower = 0
+                #     maxBatteryVoltage = 0
+                #     minBatteryVoltage = 0
+                #     maxBatteryCurrent = 0
 
                 maxPVVoltage = data.get('pv1_input_voltage') if data.get('pv1_input_voltage') > maxPVVoltage else maxPVVoltage
                 maxPVPower = data.get('pv1_input_power') if data.get('pv1_input_power') > maxPVPower else maxPVPower
