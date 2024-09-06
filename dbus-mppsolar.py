@@ -27,7 +27,7 @@ sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'velib_python'))
 from vedbus import VeDbusService, VeDbusItemExport, VeDbusItemImport
 
 # For production history
-energyProductionDays = float(1)
+energyProductionDays = int(1)
 currentDay = None
 minBatteryVoltage = 100.0
 maxBatteryVoltage = 0
