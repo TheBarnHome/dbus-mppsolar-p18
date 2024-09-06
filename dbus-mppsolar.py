@@ -118,16 +118,24 @@ class DbusMppSolarService(object):
     def __init__(self, tty, deviceinstance, productname='MPPSolar', connection='MPPSolar interface', json_file_path='/data/etc/dbus-mppsolar/config.json'):
         self._tty = tty
         self._queued_updates = []
-
-        # For production history
-        self.energyProductionDays = int(1)
-        self.currentDay = 0
-        self.minBatteryVoltage = 100.0
-        self.maxBatteryVoltage = 0
-        self.maxBatteryCurrent = 0
-        self.maxPVPower = 0
-        self.maxPVVoltage = 0
         
+        # For production history
+        global energyProductionDays
+        global currentDay
+        global minBatteryVoltage
+        global maxBatteryVoltage
+        global maxBatteryCurrent
+        global maxPVPower
+        global maxPVVoltage
+        
+        energyProductionDays = int(1)
+        currentDay = 0
+        minBatteryVoltage = 100.0
+        maxBatteryVoltage = 0
+        maxBatteryCurrent = 0
+        maxPVPower = 0
+        maxPVVoltage = 0
+
         # Get the name from config file if available
         if os.path.exists(json_file_path):
             with open(json_file_path, 'r') as json_file:
@@ -521,6 +529,7 @@ def main():
     logging.warning('Created service & connected to dbus, switching over to GLib.MainLoop() (= event based)')
 
     global mainloop
+
     mainloop = GLib.MainLoop()
     mainloop.run()
     
