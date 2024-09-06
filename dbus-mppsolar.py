@@ -249,7 +249,7 @@ class DbusMppSolarService(object):
             
             # history
             self._dbusmppt.add_path('/History/Overall/DaysAvailable', 2)
-            for day in range(energyProductionDays):
+            for day in range(self.energyProductionDays):
                 # history daily
                 self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Yield", 0)
                 self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Consumption", 0)
