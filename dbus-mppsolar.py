@@ -28,7 +28,7 @@ from vedbus import VeDbusService, VeDbusItemExport, VeDbusItemImport
 
 # For production history
 energyProductionDays = int(1)
-currentDay = None
+currentDay = 0
 minBatteryVoltage = 100.0
 maxBatteryVoltage = 0
 maxBatteryCurrent = 0
