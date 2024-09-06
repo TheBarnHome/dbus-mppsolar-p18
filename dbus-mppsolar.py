@@ -443,28 +443,28 @@ class DbusMppSolarService(object):
                     m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
                     m["/History/Daily/0/PV/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
                 
-                if generatedToday.get("day") != currentDay:
+                if generatedToday.get("day") != self.currentDay:
                     # Reset daily history when day change
-                    currentDay = generatedToday.get("day")
-                    maxPVVoltage = 0
-                    maxPVPower = 0
-                    maxBatteryVoltage = 0
-                    minBatteryVoltage = 0
-                    maxBatteryCurrent = 0
+                    self.currentDay = generatedToday.get("day")
+                    self.maxPVVoltage = 0
+                    self.maxPVPower = 0
+                    self.maxBatteryVoltage = 0
+                    self.minBatteryVoltage = 0
+                    self.maxBatteryCurrent = 0
 
-                maxPVVoltage = data.get('pv1_input_voltage') if data.get('pv1_input_voltage') > maxPVVoltage else maxPVVoltage
-                maxPVPower = data.get('pv1_input_power') if data.get('pv1_input_power') > maxPVPower else maxPVPower
-                maxBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') > maxBatteryVoltage else maxBatteryVoltage
-                minBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') < minBatteryVoltage else minBatteryVoltage
-                maxBatteryCurrent = data.get('battery_charging_current') if data.get('battery_charging_current') > maxBatteryCurrent else maxBatteryCurrent
+                self.maxPVVoltage = data.get('pv1_input_voltage') if data.get('pv1_input_voltage') > self.maxPVVoltage else self.maxPVVoltage
+                self.maxPVPower = data.get('pv1_input_power') if data.get('pv1_input_power') > self.maxPVPower else self.maxPVPower
+                self.maxBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') > self.maxBatteryVoltage else self.maxBatteryVoltage
+                self.minBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') < self.minBatteryVoltage else self.minBatteryVoltage
+                self.maxBatteryCurrent = data.get('battery_charging_current') if data.get('battery_charging_current') > self.maxBatteryCurrent else self.maxBatteryCurrent
 
-                m["/History/Daily/0/MinBatteryVoltage"] = minBatteryVoltage
-                m["/History/Daily/0/MaxBatteryVoltage"] = maxBatteryVoltage                              
-                m["/History/Daily/0/MaxBatteryCurrent"] = maxBatteryCurrent
-                m["/History/Daily/0/MaxPower"] = maxPVPower
-                m["/History/Daily/0/MaxPvVoltage"] = maxPVVoltage
-                m["/History/Daily/0/PV/0/MaxPower"] = maxPVPower
-                m["/History/Daily/0/PV/0/MaxVoltage"] = maxPVVoltage
+                m["/History/Daily/0/MinBatteryVoltage"] = self.minBatteryVoltage
+                m["/History/Daily/0/MaxBatteryVoltage"] = self.maxBatteryVoltage                              
+                m["/History/Daily/0/MaxBatteryCurrent"] = self.maxBatteryCurrent
+                m["/History/Daily/0/MaxPower"] = self.maxPVPower
+                m["/History/Daily/0/MaxPvVoltage"] = self.maxPVVoltage
+                m["/History/Daily/0/PV/0/MaxPowerself."] = self.maxPVPower
+                m["/History/Daily/0/PV/0/MaxVoltageself."] = self.maxPVVoltage
 
             # VeBus
                 # v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
