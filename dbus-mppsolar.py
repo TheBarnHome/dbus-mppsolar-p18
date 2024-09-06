@@ -26,9 +26,14 @@ logging.basicConfig(level=logging.WARNING)
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'velib_python'))
 from vedbus import VeDbusService, VeDbusItemExport, VeDbusItemImport
 
-# Workarounds for some inverter specific problem I saw
-INVERTER_OFF_ASSUME_BYPASS = True
-GUESS_AC_CHARGING = True
+# For production history
+energyProductionDays = float(1)
+currentDay = None
+minBatteryVoltage = 100.0
+maxBatteryVoltage = 0
+maxBatteryCurrent = 0
+maxPVPower = 0
+maxPVVoltage = 0
 
 # Should we import and call manually, to use our version
 USE_SYSTEM_MPPSOLAR = False
@@ -241,8 +246,29 @@ class DbusMppSolarService(object):
             self._dbusmppt.add_path('/Mode', 0)
             self._dbusmppt.add_path('/MppOperationMode', 0)
             self._dbusmppt.add_path('/Relay/0/State', None)
+            
             # history
-            # self._dbusmppt.add_path('/History/Overall/DaysAvailable', 0)
+            self._dbusmppt.add_path('/History/Overall/DaysAvailable', 2)
+            for day in range(energyProductionDays):
+                # history daily
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Yield", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Consumption", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/MaxPower", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/MaxPvVoltage", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/MinBatteryVoltage", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/MaxBatteryVoltage", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/MaxBatteryCurrent", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/TimeInBulk", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/TimeInAbsorption", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/TimeInFloat", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/LastError1", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/LastError2", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/LastError3", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/LastError4", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Pv/0/Yield", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Pv/0/MaxPower", 0)
+                self._dbusmppt.add_path("/History/Daily/" + str(day) + "/Pv/0/MaxVoltage", 0)
+                
             # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
             # self._dbusmppt.add_path('/History/Overall/MaxBatteryVoltage', 0)
             # self._dbusmppt.add_path('/History/Overall/MinBatteryVoltage', 0)
@@ -342,7 +368,7 @@ class DbusMppSolarService(object):
             except:
                 logging.warning("bulkVoltage and/or floatVoltage not defined.")
         try:
-            raw = runInverterCommands(['ET','GS','MOD','PIRI'], "PI18")
+            raw = runInverterCommands(['ET', 'ED', 'GS','MOD','PIRI'], "PI18")
         except:
             logging.warning("Error in update PI18 loop.", exc_info=True)
             self._updateInternal()
@@ -357,7 +383,7 @@ class DbusMppSolarService(object):
         # logging.warning("EffectiveChargeVoltage : {}".format(self._systemMaxCharge.get_value()))
         
     # data, mode, warnings = raw
-        generated, data, mode, rated = raw
+        generated, generatedToday, data, mode, rated = raw
 
         with self._dbusinverter as i, self._dbusmppt as m: # self._dbusvebus as v, 
             # 0=Off;1=Low Power;2=Fault;9=Inverting
@@ -411,6 +437,34 @@ class DbusMppSolarService(object):
                 m['/DC/0/Temperature'] = data.get('mppt1_charger_temperature', m['/DC/0/Temperature'])
                 m['/Dc/0/Voltage'] = data.get('battery_voltage', m['/Dc/0/Voltage'])
                 m['/Dc/0/Current'] = data.get('battery_charging_current', m['/Dc/0/Current'])
+
+                # History
+                if generatedToday.get("generated_energy_for_day") != 0 and generatedToday.get("generated_energy_for_day") != None:
+                    m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
+                    m["/History/Daily/0/PV/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
+                
+                if generatedToday.get("day") != currentDay:
+                    # Reset daily history when day change
+                    currentDay = generatedToday.get("day")
+                    maxPVVoltage = 0
+                    maxPVPower = 0
+                    maxBatteryVoltage = 0
+                    minBatteryVoltage = 0
+                    maxBatteryCurrent = 0
+
+                maxPVVoltage = data.get('pv1_input_voltage') if data.get('pv1_input_voltage') > maxPVVoltage else maxPVVoltage = maxPVVoltage
+                maxPVPower = data.get('pv1_input_power') if data.get('pv1_input_power') > maxPVPower else maxPVPower = maxPVPower
+                maxBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') > maxBatteryVoltage else maxBatteryVoltage = maxBatteryVoltage
+                minBatteryVoltage = data.get('battery_voltage') if data.get('battery_voltage') < minBatteryVoltage else minBatteryVoltage = minBatteryVoltage
+                maxBatteryCurrent = data.get('battery_charging_current') if data.get('battery_charging_current') > maxBatteryCurrent else maxBatteryCurrent = maxBatteryCurrent
+
+                m["/History/Daily/0/MinBatteryVoltage"] = minBatteryVoltage
+                m["/History/Daily/0/MaxBatteryVoltage"] = maxBatteryVoltage                              
+                m["/History/Daily/0/MaxBatteryCurrent"] = maxBatteryCurrent
+                m["/History/Daily/0/MaxPower"] = maxPVPower
+                m["/History/Daily/0/MaxPvVoltage"] = maxPVVoltage
+                m["/History/Daily/0/PV/0/MaxPower"] = maxPVPower
+                m["/History/Daily/0/PV/0/MaxVoltage"] = maxPVVoltage
 
             # VeBus
                 # v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
