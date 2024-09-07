@@ -260,20 +260,20 @@ class DbusMppSolarService(object):
             self._dbusmppt.add_path('/History/Overall/DaysAvailable', 1)
 
             # history daily
-            self._dbusmppt.add_path("/History/Daily/0/Yield", 0)
-            self._dbusmppt.add_path("/History/Daily/0/Consumption", 0)
-            self._dbusmppt.add_path("/History/Daily/0/MaxPower", 0)
-            self._dbusmppt.add_path("/History/Daily/0/MaxPvVoltage", 0)
-            self._dbusmppt.add_path("/History/Daily/0/MinBatteryVoltage", 0)
-            self._dbusmppt.add_path("/History/Daily/0/MaxBatteryVoltage", 0)
-            self._dbusmppt.add_path("/History/Daily/0/MaxBatteryCurrent", 0)
-            self._dbusmppt.add_path("/History/Daily/0/TimeInBulk", 0)
-            self._dbusmppt.add_path("/History/Daily/0/TimeInAbsorption", 0)
-            self._dbusmppt.add_path("/History/Daily/0/TimeInFloat", 0)
-            self._dbusmppt.add_path("/History/Daily/0/LastError1", 0)
-            self._dbusmppt.add_path("/History/Daily/0/LastError2", 0)
-            self._dbusmppt.add_path("/History/Daily/0/LastError3", 0)
-            self._dbusmppt.add_path("/History/Daily/0/LastError4", 0)
+            self._dbusmppt.add_path("/History/Overall/Yield", 0)
+            self._dbusmppt.add_path("/History/Overall/Consumption", 0)
+            self._dbusmppt.add_path("/History/Overall/MaxPower", 0)
+            self._dbusmppt.add_path("/History/Overall/MaxPvVoltage", 0)
+            self._dbusmppt.add_path("/History/Overall/MinBatteryVoltage", 0)
+            self._dbusmppt.add_path("/History/Overall/MaxBatteryVoltage", 0)
+            self._dbusmppt.add_path("/History/Overall/MaxBatteryCurrent", 0)
+            self._dbusmppt.add_path("/History/Overall/TimeInBulk", 0)
+            self._dbusmppt.add_path("/History/Overall/TimeInAbsorption", 0)
+            self._dbusmppt.add_path("/History/Overall/TimeInFloat", 0)
+            self._dbusmppt.add_path("/History/Overall/LastError1", 0)
+            self._dbusmppt.add_path("/History/Overall/LastError2", 0)
+            self._dbusmppt.add_path("/History/Overall/LastError3", 0)
+            self._dbusmppt.add_path("/History/Overall/LastError4", 0)
 
                 
             # self._dbusmppt.add_path('/History/Overall/MaxPvVoltage', 0)
@@ -435,13 +435,9 @@ class DbusMppSolarService(object):
                 m['/Pv/V'] = data.get('pv1_input_voltage', m['/Pv/V'])
                 m['/Pv/0/P'] = data.get('pv1_input_power', m['/Pv/0/P'])
                 m['/Yield/Power'] = data.get('pv1_input_power', m['/Yield/Power'])
-                # if generated.get('total_pv_generated_energy') != 0 and generated.get('total_pv_generated_energy') != None:
-                try:
+                if generated.get('total_pv_generated_energy') != 0 and generated.get('total_pv_generated_energy') != None:
                     m['/Yield/User'] = generated.get('total_pv_generated_energy') / 1000
                     m['/Yield/System'] = generated.get('total_pv_generated_energy') / 1000
-                except:
-                    logging.warning(generated)
-                    logging.warning("Generated energy is None type.", exc_info=True)
                 m['/MppOperationMode'] = 2 if (data.get('pv1_input_power', 0) > 0) else 0
                 m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
                 m['/Link/ChargeVoltage'] =  rated.get('battery_bulk_voltage',  m['/Link/ChargeVoltage']) # <- Charge voltage. Must be written every 60 seconds. Used by GX device to communicate BMS charge voltages.
@@ -451,7 +447,7 @@ class DbusMppSolarService(object):
 
                 # History
                 # if generatedToday.get("generated_energy_for_day") != 0 and generatedToday.get("generated_energy_for_day") != None:
-                #     m["/History/Daily/0/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
+                #     m["/History/Overall/Yield"] = generatedToday.get("generated_energy_for_day") / 1000
                 
                 # if generatedToday.get("day") != currentDay:
                 #     # Reset daily history when day change
@@ -462,16 +458,16 @@ class DbusMppSolarService(object):
                 #     minBatteryVoltage = 0
                 #     maxBatteryCurrent = 0
 
-                # if data.get('pv1_input_voltage') != None and data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
-                #     m["/History/Daily/0/MaxPvVoltage"] = data.get('pv1_input_voltage')
-                # if data.get('pv1_input_power') != None and data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
-                #     m["/History/Daily/0/MaxPower"] = data.get('pv1_input_power')
-                # if data.get('battery_voltage') != None and data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
-                #     m["/History/Daily/0/MaxBatteryVoltage"] = data.get('battery_voltage')
-                # if data.get('battery_voltage') != None and data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
-                #     m["/History/Daily/0/MinBatteryVoltage"] = data.get('battery_voltage')
-                # if data.get('battery_charging_current') != None and data.get('battery_charging_current') > m["/History/Daily/0/MaxBatteryCurrent"]:
-                #     m["/History/Daily/0/MaxBatteryCurrent"] = data.get('battery_charging_current')
+                if data.get('pv1_input_voltage') != None and data.get('pv1_input_voltage') > m["/History/Overall/MaxPvVoltage"]:
+                    m["/History/Overall/MaxPvVoltage"] = data.get('pv1_input_voltage')
+                if data.get('pv1_input_power') != None and data.get('pv1_input_power') > m["/History/Overall/MaxPower"]:
+                    m["/History/Overall/MaxPower"] = data.get('pv1_input_power')
+                if data.get('battery_voltage') != None and data.get('battery_voltage') > m["/History/Overall/MaxBatteryVoltage"]:
+                    m["/History/Overall/MaxBatteryVoltage"] = data.get('battery_voltage')
+                if data.get('battery_voltage') != None and data.get('battery_voltage') < m["/History/Overall/MinBatteryVoltage"]:
+                    m["/History/Overall/MinBatteryVoltage"] = data.get('battery_voltage')
+                if data.get('battery_charging_current') != None and data.get('battery_charging_current') > m["/History/Overall/MaxBatteryCurrent"]:
+                    m["/History/Overall/MaxBatteryCurrent"] = data.get('battery_charging_current')
 
             # VeBus
                 # v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
