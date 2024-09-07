@@ -461,16 +461,16 @@ class DbusMppSolarService(object):
                 #     minBatteryVoltage = 0
                 #     maxBatteryCurrent = 0
 
-                if data.get('pv1_input_voltage') != None and data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
-                    m["/History/Daily/0/MaxPvVoltage"] = data.get('pv1_input_voltage')
-                if data.get('pv1_input_power') != None and data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
-                    m["/History/Daily/0/MaxPower"] = data.get('pv1_input_power')
-                if data.get('battery_voltage') != None and data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
-                    m["/History/Daily/0/MaxBatteryVoltage"] = data.get('battery_voltage')
-                if data.get('battery_voltage') != None and data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
-                    m["/History/Daily/0/MinBatteryVoltage"] = data.get('battery_voltage')
-                if data.get('battery_charging_current') != None and data.get('battery_charging_current') > m["/History/Daily/0/MaxBatteryCurrent"]:
-                    m["/History/Daily/0/MaxBatteryCurrent"] = data.get('battery_charging_current')
+                # if data.get('pv1_input_voltage') != None and data.get('pv1_input_voltage') > m["/History/Daily/0/MaxPvVoltage"]:
+                #     m["/History/Daily/0/MaxPvVoltage"] = data.get('pv1_input_voltage')
+                # if data.get('pv1_input_power') != None and data.get('pv1_input_power') > m["/History/Daily/0/MaxPower"]:
+                #     m["/History/Daily/0/MaxPower"] = data.get('pv1_input_power')
+                # if data.get('battery_voltage') != None and data.get('battery_voltage') > m["/History/Daily/0/MaxBatteryVoltage"]:
+                #     m["/History/Daily/0/MaxBatteryVoltage"] = data.get('battery_voltage')
+                # if data.get('battery_voltage') != None and data.get('battery_voltage') < m["/History/Daily/0/MinBatteryVoltage"]:
+                #     m["/History/Daily/0/MinBatteryVoltage"] = data.get('battery_voltage')
+                # if data.get('battery_charging_current') != None and data.get('battery_charging_current') > m["/History/Daily/0/MaxBatteryCurrent"]:
+                #     m["/History/Daily/0/MaxBatteryCurrent"] = data.get('battery_charging_current')
 
             # VeBus
                 # v['/Dc/0/Voltage'] = data.get('battery_voltage', v['/Dc/0/Voltage'])
