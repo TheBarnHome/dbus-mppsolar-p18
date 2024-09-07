@@ -440,6 +440,7 @@ class DbusMppSolarService(object):
                     m['/Yield/User'] = generated.get('total_generated_energy') / 1000
                     m['/Yield/System'] = generated.get('total_generated_energy') / 1000
                 except:
+                    logging.warning(generated)
                     logging.warning("Generated energy is None type.", exc_info=True)
                 m['/MppOperationMode'] = 2 if (data.get('pv1_input_power', 0) > 0) else 0
                 m['/Link/ChargeCurrent'] =  rated.get('max_charging_current',  m['/Link/ChargeCurrent']) # <- Maximum charge current. Must be written every 60 seconds. Used by GX device if there is a BMS or user limit.
